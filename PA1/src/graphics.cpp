@@ -10,7 +10,7 @@ Graphics::~Graphics()
 
 }
 
-bool Graphics::Initialize(int width, int height)
+bool Graphics::Initialize(int width, int height, std::string v, std::string f)
 {
   // Used for the linux OS
   #if !defined(__APPLE__) && !defined(MACOSX)
@@ -55,15 +55,15 @@ bool Graphics::Initialize(int width, int height)
     return false;
   }
 
-  // Add the vertex shader
-  if(!m_shader->AddShader(GL_VERTEX_SHADER))
+  // Add the vertex shader, now with path support
+  if(!m_shader->AddShader(GL_VERTEX_SHADER, v))
   {
     printf("Vertex Shader failed to Initialize\n");
     return false;
   }
 
-  // Add the fragment shader
-  if(!m_shader->AddShader(GL_FRAGMENT_SHADER))
+  // Add the fragment shader, now with path support
+  if(!m_shader->AddShader(GL_FRAGMENT_SHADER, f))
   {
     printf("Fragment Shader failed to Initialize\n");
     return false;

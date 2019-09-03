@@ -25,7 +25,7 @@ Engine::~Engine()
   m_graphics = NULL;
 }
 
-bool Engine::Initialize()
+bool Engine::Initialize(std::string v, std::string f)
 {
   // Start a window
   m_window = new Window();
@@ -35,9 +35,9 @@ bool Engine::Initialize()
     return false;
   }
 
-  // Start the graphics
+  // Start the graphics, now with path support for shaders
   m_graphics = new Graphics();
-  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT))
+  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, v, f))
   {
     printf("The graphics failed to initialize.\n");
     return false;

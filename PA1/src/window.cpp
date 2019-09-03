@@ -56,14 +56,14 @@ bool Window::Initialize(const string &name, int* width, int* height)
     printf("OpenGL context not created: %s\n", SDL_GetError());
     return false;
   }
-
-  // Use VSync
+/*
+  // Use VSync. My machine cannot run VSync, disabled section
   if(SDL_GL_SetSwapInterval(1) < 0)
   {
     printf("Unable to use VSync: %s\n", SDL_GetError());
     return false;
   }
-
+*/
   return true;
 }
 

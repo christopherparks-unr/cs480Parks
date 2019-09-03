@@ -1,4 +1,5 @@
 #include "object.h"
+#include <cmath>
 
 Object::Object()
 {  
@@ -79,8 +80,18 @@ Object::~Object()
 
 void Object::Update(unsigned int dt)
 {
-  angle += dt * M_PI/1000;
-  model = glm::rotate(glm::mat4(1.0f), (angle), glm::vec3(0.0, 1.0, 0.0));
+  angle += dt * M_PI/1000; //Base angle
+  //Define new identity matrix for translation
+  model = glm::mat4(1.0f);
+  //Translate along the X and Z axes by 'radius' amount, relative to angle
+  double radius = 8.0;
+  double outer_angle_mod = 0.5;
+  float inner_angle_mod = 1.5;
+  //Outer rotation
+  model[3][0] = radius * sin(angle * outer_angle_mod); //X axis
+  model[3][2] = radius * cos(angle * outer_angle_mod); //Z axis
+  //Inner rotation
+  model = glm::rotate(model, (angle * inner_angle_mod), glm::vec3(0.0, 1.0, 0.0));
 }
 
 glm::mat4 Object::GetModel()
