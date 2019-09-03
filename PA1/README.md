@@ -2,6 +2,11 @@
 
 # Dependencies, Building, and Running
 
+##Instructions for Use
+The makefile generates a file called ```Tutorial``` to run. If no arguments are provided, it will run using the default shaders located in ```assets/shaders/```. Use ```-v "path"``` to load a different vertex shader, and '''-f "path"``` to load a different fragment shader.
+
+Both of these options can be used as many times as you like, though due to insufficient knowledge on my behalf, the program will only load the last specified vertex and fragment shader in the list of arguments. Ignores all other arguments.
+
 ## Dependency Instructions
 For both of the operating systems to run this project installation of these three programs are required [GLEW](http://glew.sourceforge.net/), [GLM](http://glm.g-truc.net/0.9.7/index.html), and [SDL2](https://wiki.libsdl.org/Tutorials).
 
