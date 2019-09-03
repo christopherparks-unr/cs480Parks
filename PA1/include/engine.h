@@ -13,7 +13,7 @@ class Engine
     Engine(string name, int width, int height);
     Engine(string name);
     ~Engine();
-    bool Initialize(std::string v, std::string f);
+    bool Initialize();
     void Run();
     void Keyboard();
     unsigned int getDT();
