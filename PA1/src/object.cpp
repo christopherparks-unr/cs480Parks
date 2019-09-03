@@ -1,4 +1,6 @@
 #include "object.h"
+#include <cmath>
+#include <cstdlib>
 
 Object::Object()
 {  
@@ -80,7 +82,17 @@ Object::~Object()
 void Object::Update(unsigned int dt)
 {
   angle += dt * M_PI/1000;
-  model = glm::rotate(glm::mat4(1.0f), (angle), glm::vec3(0.0, 1.0, 0.0));
+  //Define intermediate matrix to allow for rotation not centered on the object
+  glm::mat4 outer_rotation = glm::mat4(1.0f);
+  //Define radius of translation, and rate of change of new rotation relative to original rotation
+  double radius = 4.0;
+  double RoC = 0.5;
+  //Modify matrix values "X" and "Z" to translate the cube
+
+  outer_rotation[3][0] = radius * sin(angle * RoC);
+  outer_rotation[3][2] = radius * cos(angle * RoC);
+  //Use this matrix instead of the identity matrix
+  model = glm::rotate(outer_rotation, (angle), glm::vec3(0.0, 1.0, 0.0));
 }
 
 glm::mat4 Object::GetModel()

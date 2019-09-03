@@ -1,4 +1,5 @@
 #include "shader.h"
+#include <fstream>
 
 Shader::Shader()
 {
@@ -33,12 +34,22 @@ bool Shader::Initialize()
 }
 
 // Use this method to add shaders to the program. When finished - call finalize()
-bool Shader::AddShader(GLenum ShaderType)
+bool Shader::AddShader(GLenum ShaderType, std::string path)
 {
   std::string s;
-
+  std::string line;
+  std::ifstream shader_info;
+  shader_info.open(path);
+  while (getline(shader_info,line))
+  {
+    s.append(line).append("\n");
+  }
+  shader_info.close();
+  std::cout << s << std::endl;
+  /*
   if(ShaderType == GL_VERTEX_SHADER)
   {
+
     s = "#version 330\n \
           \
           layout (location = 0) in vec3 v_position; \
@@ -72,7 +83,7 @@ bool Shader::AddShader(GLenum ShaderType)
           } \
           ";
   }
-
+  */
   GLuint ShaderObj = glCreateShader(ShaderType);
 
   if (ShaderObj == 0) 
