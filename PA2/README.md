@@ -1,9 +1,12 @@
-# PA1: Spinning Cube
-
-# Dependencies, Building, and Running
+# PA2: Interaction: Menus, Keyboard, and Mouse
 
 ## Instructions for Use
 The makefile generates a file called ```Tutorial``` to run. If no arguments are provided, it will run using the default shaders located in ```assets/shaders/```. Use ```-v "path"``` to load a different vertex shader, and ```-f "path"``` to load a different fragment shader.
+
+##Interacting
+Press the left mouse button or 'I' on the keyboard to reverse the rotation on the inner roation (the rotation centered on the cube). Press the right mouse button or 'O' on the keyboard to reverse the rotation of the outer roation (the rotation not centered on the cube).
+
+# Dependencies, Building, and Running
 
 Both of these options can be used as many times as you like, though due to insufficient knowledge on my behalf, the program will only load the last specified vertex and fragment shader in the list of arguments. Ignores all other arguments.
 
