@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   std::cout << "FS: " << f << std::endl;
 
   // Start an engine and run it then cleanup after
-  Engine *engine = new Engine("Tutorial Window Name", 800, 600);
+  Engine *engine = new Engine("Chris Parks, PA2", 800, 600);
   if(!engine->Initialize(v, f))
   {
     printf("The engine failed to start.\n");

@@ -7,17 +7,21 @@
 class Object
 {
   public:
-    Object();
+    Object(float r);
     ~Object();
     void Update(unsigned int dt);
     void Render();
 
     glm::mat4 GetModel();
 
-    float inner_angle;
-    float outer_angle;
-    float inner_angle_mod;
-    float outer_angle_mod;
+    float rotation_angle;
+    float orbit_angle;
+    float rotation_angle_mod;
+    float orbit_angle_mod;
+    float radius;
+    
+    float rotation_angle_paused;
+    float orbit_angle_paused;
 
   private:
     glm::mat4 model;

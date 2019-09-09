@@ -1,7 +1,7 @@
 #include "object.h"
 #include <cmath>
 
-Object::Object()
+Object::Object(float r)
 {  
   /*
     # Blender File for a Cube
@@ -61,10 +61,13 @@ Object::Object()
     Indices[i] = Indices[i] - 1;
   }
 
-  inner_angle = 0.0f;
-  outer_angle = 0.0f;
-  inner_angle_mod = 1.5f;
-  outer_angle_mod = 0.5f;
+  rotation_angle = 0.0f;
+  orbit_angle = 0.0f;
+  rotation_angle_mod = 1.5f;
+  orbit_angle_mod = 0.5f;
+  radius = r;
+  rotation_angle_paused = 1.0f;
+  orbit_angle_paused = 1.0f;
 
   glGenBuffers(1, &VB);
   glBindBuffer(GL_ARRAY_BUFFER, VB);
@@ -83,17 +86,16 @@ Object::~Object()
 
 void Object::Update(unsigned int dt)
 {
-  inner_angle += dt * M_PI/1000 * inner_angle_mod; //Base rotation angle
-  outer_angle += dt * M_PI/1000 * outer_angle_mod; //Outer rotation angle
+  rotation_angle += rotation_angle_paused * dt * M_PI/1000 * rotation_angle_mod; //Rotation angle
+  orbit_angle += orbit_angle_paused * dt * M_PI/1000 * orbit_angle_mod; //Orbit angle
   //Define new identity matrix for translation
   model = glm::mat4(1.0f);
   //Translate along the X and Z axes by 'radius' amount, relative to angle
-  double radius = 8.0;
-  //Outer rotation
-  model[3][0] = radius * sin(outer_angle); //X axis
-  model[3][2] = radius * cos(outer_angle); //Z axis
-  //Inner rotation
-  model = glm::rotate(model, (inner_angle), glm::vec3(0.0, 1.0, 0.0));
+  //Orbit
+  model[3][0] = radius * sin(orbit_angle); //X axis
+  model[3][2] = radius * cos(orbit_angle); //Z axis
+  //Rotation
+  model = glm::rotate(model, (rotation_angle), glm::vec3(0.0, 1.0, 0.0));
 }
 
 glm::mat4 Object::GetModel()

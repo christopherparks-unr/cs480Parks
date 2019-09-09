@@ -87,25 +87,34 @@ void Engine::Keyboard()
     {
       m_running = false;
     }
-    else if (m_event.key.keysym.sym == SDLK_i)
+    else if (m_event.key.keysym.sym == SDLK_q)
     {
-      m_graphics->m_cube->inner_angle_mod *= -1;
+      m_graphics->m_cube->rotation_angle_mod *= -1; //Reverse rotation direction
     }
-    else if (m_event.key.keysym.sym == SDLK_o)
+    else if (m_event.key.keysym.sym == SDLK_w)
     {
-      m_graphics->m_cube->outer_angle_mod *= -1;
+      m_graphics->m_cube->orbit_angle_mod *= -1; //Reverse orbit direction
     }
+    else if (m_event.key.keysym.sym == SDLK_a) //Pause and unpause rotation
+    {
+      m_graphics->m_cube->rotation_angle_paused = m_graphics->m_cube->rotation_angle_paused == 0.0f ? 1.0f : 0.0f;
+    }
+    else if (m_event.key.keysym.sym == SDLK_s) //Pause and unpause orbit
+    {
+      m_graphics->m_cube->orbit_angle_paused = m_graphics->m_cube->orbit_angle_paused == 0.0f ? 1.0f : 0.0f;
+    }
+
   }
   else if (m_event.type == SDL_MOUSEBUTTONDOWN)
   {
     // handle mouse down events here
     if (m_event.button.button == SDL_BUTTON_LEFT)
     {
-      m_graphics->m_cube->inner_angle_mod *= -1;
+      m_graphics->m_cube->rotation_angle_mod *= -1;
     }
     else if (m_event.button.button == SDL_BUTTON_RIGHT)
     {
-      m_graphics->m_cube->outer_angle_mod *= -1;
+      m_graphics->m_cube->orbit_angle_mod *= -1;
     }
   }
 }
