@@ -1,4 +1,4 @@
-# PA2: Interaction: Menus, Keyboard, and Mouse
+# PA3: Moons
 
 ## Instructions for Use
 The makefile generates a file called ```CP_PA3``` to run. If no arguments are provided, it will run using the default shaders located in ```assets/shaders/```. Use ```-v "path"``` to load a different vertex shader, and ```-f "path"``` to load a different fragment shader.
@@ -6,8 +6,23 @@ The makefile generates a file called ```CP_PA3``` to run. If no arguments are pr
 Both of these options can be used as many times as you like, though due to insufficient knowledge on my behalf, the program will only load the last specified vertex and fragment shader in the list of arguments. Ignores all other arguments.
 
 ## Interacting
-Press the left mouse button or 'Q' on the keyboard to reverse the rotation of the cube. Press the right mouse button or 'W' on the keyboard to reverse the orbit of the cube. Press 'A' to pause / unpause the rotation of the cube, and 'S' to pause / unpause the orbit of the cube.
+There are two objects to interact with in this project: the "planet" and the "moon". Interacting is based on a selection system: Press '1' on the keyboard (not the numpad) to select the planet, and press '2' to select the moon. Press '0' to remove active selection. **By default, there is no active selection.**
 
+Once an object is selected, use the following keys to manipulate the object:
+| Keypress	| Effect			|
+| -------------	| ----------------------------- |
+| Q or LMB	| Reverse rotation		|
+| A		| Pause / Unpause rotation	|
+| W or RMB	| Reverse orbit			|
+| S		| Pause / Unpause orbit		|
+
+##Extra Credit
+The moon is currently set to be a hard-coded value of 0.5 times the "default size". Objects require a scale parameter as part of their initialization; this includes the planet, which has been hard-coded to 1.0. While there is no support to change scale via the launch options or during run-time, scale for either object can currently be modified by altering the 4th argument on lines 48 and 49 within ```src/graphics.cpp```.
+
+Example of initializing a planet to 0.75 times the default size:
+```
+m_cube = new Object(1.0f, 1.0f, 1.0f, 0.75f, nullptr);
+```
 
 # Dependencies, Building, and Running
 
