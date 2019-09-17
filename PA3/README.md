@@ -10,7 +10,7 @@ There are two objects to interact with in this project: the "planet" and the "mo
 
 Once an object is selected, use the following keys to manipulate the object:
 | Keypress      | Effect                        |
-| ------------- | ----------------------------- |
+|:-------------:|:-----------------------------:|
 | Q or LMB      | Reverse rotation              |
 | A             | Pause / Unpause rotation      |
 | W or RMB      | Reverse orbit                 |
