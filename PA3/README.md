@@ -9,6 +9,7 @@ Both of these options can be used as many times as you like, though due to insuf
 There are two objects to interact with in this project: the "planet" and the "moon". Interacting is based on a selection system: Press '1' on the keyboard (not the numpad) to select the planet, and press '2' to select the moon. Press '0' to remove active selection. **By default, there is no active selection.**
 
 Once an object is selected, use the following keys to manipulate the object:
+
 | Keypress      | Effect                        |
 |:-------------:|:-----------------------------:|
 | Q or LMB      | Reverse rotation              |
