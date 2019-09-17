@@ -9,12 +9,12 @@ Both of these options can be used as many times as you like, though due to insuf
 There are two objects to interact with in this project: the "planet" and the "moon". Interacting is based on a selection system: Press '1' on the keyboard (not the numpad) to select the planet, and press '2' to select the moon. Press '0' to remove active selection. **By default, there is no active selection.**
 
 Once an object is selected, use the following keys to manipulate the object:
-| Keypress	| Effect			|
-| -------------	| ----------------------------- |
-| Q or LMB	| Reverse rotation		|
-| A		| Pause / Unpause rotation	|
-| W or RMB	| Reverse orbit			|
-| S		| Pause / Unpause orbit		|
+| Keypress      | Effect                        |
+| ------------- | ----------------------------- |
+| Q or LMB      | Reverse rotation              |
+| A             | Pause / Unpause rotation      |
+| W or RMB      | Reverse orbit                 |
+| S             | Pause / Unpause orbit         |
 
 ##Extra Credit
 The moon is currently set to be a hard-coded value of 0.5 times the "default size". Objects require a scale parameter as part of their initialization; this includes the planet, which has been hard-coded to 1.0. While there is no support to change scale via the launch options or during run-time, scale for either object can currently be modified by altering the 4th argument on lines 48 and 49 within ```src/graphics.cpp```.
