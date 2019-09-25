@@ -1,12 +1,19 @@
 # PA3: Moons
 
-## Instructions for Use
-The makefile generates a file called ```CP_PA4``` to run. If no arguments are provided, it will run using the default shaders located in ```assets/shaders/```. Use ```-v "path"``` to load a different vertex shader, and ```-f "path"``` to load a different fragment shader.
+## Adding objects to the project
+Within ```/assets/objects/``` are a few sample object files. cube.obj is the orginial object that was hard-coded in the first project. tray.obj is the object I created in Blender. dragon.obj is the sample file found on the class website, already included for your convenience.
 
-Both of these options can be used as many times as you like, though due to insufficient knowledge on my behalf, the program will only load the last specified vertex and fragment shader in the list of arguments. Ignores all other arguments.
+You don't need to specifically add objects into this folder, though it is the convention. **Once you add a new object into any directory, you must add it as a new record to the ```object_list.txt``` file located at /PA4/. If not, the program will not load the vertex and index information.** The purpose of using object_list.txt is to allow easier implementation of multiple instances of an object. It doesn't serve much purpose for this project, but could be useful later.
+
+## Instructions for Use
+The makefile generates a file called ```CP_PA4``` to run. If no arguments are provided, it will run using the default shaders located in ```assets/shaders/```. Use ```-v <path>``` to load a different vertex shader, and ```-f <path>``` to load a different fragment shader.
+
+**Use ```-o <filename>``` to use that model when loading.** If this argument is not specified, it defaults to cube.obj (therefore this object should not be removed from object_list.txt). Note that this argument is different from -v and -f in that it is not a path, only a file name.
+
+All of these options can be used as many times as you like, though due to insufficient knowledge on my behalf, the program will only load the last specified vertex shader, fragment shader, and object specified in the list of arguments. Ignores all other arguments.
 
 ## Interacting
-There are two objects to interact with in this project: the "planet" and the "moon". Interacting is based on a selection system: Press '1' on the keyboard (not the numpad) to select the planet, and press '2' to select the moon. Press '0' to remove active selection. **By default, there is no active selection.**
+There is only one object to interact with in this project. Press '1' on the keyboard (not the numpad) to select the object, and press '0' to remove active selection. **By default, there is no active selection.**
 
 Once an object is selected, use the following keys to manipulate the object:
 
@@ -16,14 +23,6 @@ Once an object is selected, use the following keys to manipulate the object:
 | A             | Pause / Unpause rotation      |
 | W or RMB      | Reverse orbit                 |
 | S             | Pause / Unpause orbit         |
-
-##Extra Credit
-The moon is currently set to be a hard-coded value of 0.5 times the "default size". Objects require a scale parameter as part of their initialization; this includes the planet, which has been hard-coded to 1.0. While there is no support to change scale via the launch options or during run-time, scale for either object can currently be modified by altering the 4th argument on lines 48 and 49 within ```src/graphics.cpp```.
-
-Example of initializing a planet to 0.75 times the default size:
-```
-m_cube = new Object(1.0f, 1.0f, 1.0f, 0.75f, nullptr);
-```
 
 # Dependencies, Building, and Running
 
@@ -59,7 +58,7 @@ make
 
 Example run code:
 ```
-./CP_PA4 -f ../assets/shaders/fragment_pa1.txt -v ../assets/shaders/vertex_pa1.txt
+./CP_PA4 -f ../assets/shaders/fragment_pa1.txt -v ../assets/shaders/vertex_pa1.txt -o dragon.obj
 ```
 
 ## Ubuntu.cse.unr.edu
