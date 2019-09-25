@@ -1,0 +1,3 @@
+../assets/objects/cube.obj
+../assets/objects/tray.obj
+../assets/objects/dragon.obj
