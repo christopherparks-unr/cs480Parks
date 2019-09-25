@@ -15,4 +15,8 @@ This is a cube that rotates in place on the screen. To run this project ```cd PA
 ## PA2: Interaction
 Now has user interactivity using the mouse and keyboard.
 
+## PA3: Moons
+Now has a moon that can orbit a parent object.
 
+## PA4: Blender and Model Loading
+Self-implemented model loader. Not a texture loader.

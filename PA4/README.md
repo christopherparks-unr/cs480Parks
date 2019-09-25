@@ -1,9 +1,9 @@
-# PA3: Moons
+# PA4: Blender and Model Loading
 
 ## Adding objects to the project
 Within ```/assets/objects/``` are a few sample object files. cube.obj is the orginial object that was hard-coded in the first project. tray.obj is the object I created in Blender. dragon.obj is the sample file found on the class website, already included for your convenience.
 
-You don't need to specifically add objects into this folder, though it is the convention. **Once you add a new object into any directory, you must add it as a new record to the ```object_list.txt``` file located at /PA4/. If not, the program will not load the vertex and index information.** The purpose of using object_list.txt is to allow easier implementation of multiple instances of an object. It doesn't serve much purpose for this project, but could be useful later.
+You don't need to specifically add objects into this folder, though it is the convention. **Once you add a new object into any directory, you must add it's directory (relative to /PA4/) as a new record to the ```object_list.txt``` file located at /PA4/. If not, the program will not load the vertex and index information.** The purpose of using object_list.txt is to allow easier implementation of multiple instances of an object. It doesn't serve much purpose for this project, but could be useful later.
 
 ## Instructions for Use
 The makefile generates a file called ```CP_PA4``` to run. If no arguments are provided, it will run using the default shaders located in ```assets/shaders/```. Use ```-v <path>``` to load a different vertex shader, and ```-f <path>``` to load a different fragment shader.
