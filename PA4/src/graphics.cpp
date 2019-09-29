@@ -10,7 +10,7 @@ Graphics::~Graphics()
 
 }
 
-bool Graphics::Initialize(int width, int height, std::string v, std::string f, std::string o)
+bool Graphics::Initialize(int width, int height, std::string v, std::string f)
 {
   // Used for the linux OS
   #if !defined(__APPLE__) && !defined(MACOSX)
@@ -44,9 +44,9 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f, s
     return false;
   }
 
-  // Create the object
+  // Create the objects
   //m_cube = new Object("tray.obj", 1.0f, 8.0f, 0.25f, 0.50f, nullptr);
-  m_object = new Object(o, 1.0f, 0.0f, 0.25f, 0.00f, nullptr);
+  //m_object = new Object(o, 1.0f, 0.0f, 0.25f, 0.00f, nullptr);
   //m_moon = new Object("tray.obj", 0.5f, 6.0f, 1.0f, 1.0f, m_cube);
 
   // Set up the shaders
