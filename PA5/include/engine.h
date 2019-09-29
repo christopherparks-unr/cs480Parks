@@ -20,8 +20,7 @@ class Engine
     unsigned int getDT();
     long long GetCurrentTimeMillis();
 
-    
-    
+    Object* selection;
 
   
   private:

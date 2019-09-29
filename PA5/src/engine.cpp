@@ -29,7 +29,7 @@ Engine::~Engine()
 
 
 
-bool Engine::Initialize(std::string v, std::string f, std::string o)
+bool Engine::Initialize(std::string v, std::string f)
 {
   // Start a window
   selection = nullptr;
@@ -43,7 +43,7 @@ bool Engine::Initialize(std::string v, std::string f, std::string o)
 
   // Start the graphics, now with path support for shaders
   m_graphics = new Graphics();
-  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, v, f, o))
+  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, v, f))
   {
     printf("The graphics failed to initialize.\n");
     return false;
@@ -90,7 +90,7 @@ void Engine::Keyboard()
     // handle key down events here
     switch(m_event.key.keysym.sym)
     {
-      case  SDLK_1:  selection = m_graphics->m_object; break;
+      //case  SDLK_1:  selection = m_graphics->m_object; break;
       //case  SDLK_2:  selection = m_graphics->m_moon; break;
       case  SDLK_0:  selection = nullptr; break;
     }

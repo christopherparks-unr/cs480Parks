@@ -1,44 +1,20 @@
 #include "object.h"
-#include "global.h"
+//#include "global.h"
 #include <cmath>
 
 Object::Object(std::string obj, float s, float r, float r_m, float o_m, Object* p)
 {  
-  int index_obj = getObjectIndex(obj);
+  //int index_obj = getObjectIndex(obj);
+  /*
   if(index_obj == -1)
   {
     std::cout << "Object not found!" << std::endl;
     index_obj = 0;
   }
-  Vertices = getVertexVector(index_obj);
-  Indices = getIndexVector(index_obj);
-/*
-  Vertices = {
-    {{1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}},
-    {{1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
-    {{-1.0f, -1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-    {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}},
-    {{1.0f, 1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}},
-    {{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
-    {{-1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f}},
-    {{-1.0f, 1.0f, -1.0f}, {1.0f, 1.0f, 1.0f}}
-  };
-
-  Indices = {
-    1, 2, 3,
-    7, 6, 5,
-    0, 4, 5,
-    1, 5, 6,
-    6, 7, 3,
-    0, 3, 7,
-    0, 1, 3,
-    4, 7, 5,
-    1, 0, 5,
-    2, 1, 6,
-    2, 6, 3,
-    4, 0, 7
-  };
   */
+  //Vertices = getVertexVector(index_obj);
+  //Indices = getIndexVector(index_obj);
+
 
 
   rotation_angle = 0.0f;
