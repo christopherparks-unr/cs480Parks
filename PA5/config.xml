@@ -1,0 +1,17 @@
+[model1]
+
+obj_path=../assets/objects/cube.obj
+parent=nullptr
+scale=1.0
+rot_spd=1.0
+orbit_spd=0.0
+orbit_spd=1.0
+
+[model2]
+
+obj_path=../assets/objects/cube.obj
+parent=model1
+scale=0.25
+rot_spd=2.0
+orbit_spd=6.0
+orbit_spd=2.0
