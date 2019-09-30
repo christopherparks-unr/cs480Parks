@@ -2,30 +2,33 @@
 //#include "global.h"
 #include <cmath>
 
-Object::Object(std::string obj, float s, float r, float r_m, float o_m, Object* p)
+Object::Object(Scene thisScene, std::string thisName, float s, float r, float r_m, float o_m, std::string p)
 {  
-  //int index_obj = getObjectIndex(obj);
-  /*
-  if(index_obj == -1)
-  {
-    std::cout << "Object not found!" << std::endl;
-    index_obj = 0;
-  }
-  */
-  //Vertices = getVertexVector(index_obj);
-  //Indices = getIndexVector(index_obj);
+    int which = thisScene.search_mesh_by_name(thisName);
 
+    if (which == -1)
+    {
+        which = thisScene.search_mesh_by_name("cube");
+    }
 
+    Vertices = thisScene.meshes[which].vertex_data;
+    Indices = thisScene.meshes[which].indice_data;
 
   rotation_angle = 0.0f;
   orbit_angle = 0.0f;
-
 
   scale = s;
   radius = r;
   rotation_angle_mod = r_m;
   orbit_angle_mod = o_m;
-  parent = p;
+  if(p.compare("nullptr") == 0)
+  {
+    parent = nullptr;
+  }
+  else
+  {
+    parent = p;
+  }
 
   rotation_angle_paused = 1.0f;
   orbit_angle_paused = 1.0f;

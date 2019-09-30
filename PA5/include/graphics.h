@@ -28,6 +28,8 @@ class Graphics
     GLint m_projectionMatrix;
     GLint m_viewMatrix;
     GLint m_modelMatrix;
+
+    std::vector<Object> objects_to_render;
 };
 
 #endif /* GRAPHICS_H */

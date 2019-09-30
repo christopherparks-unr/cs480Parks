@@ -3,11 +3,19 @@
 
 #include <vector>
 #include "graphics_headers.h"
+#include "global.h"
+
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <assimp/color4.h>
+
+
 
 class Object
 {
   public:
-    Object(std::string obj, float s, float r, float r_m, float o_m, Object* p);
+    Object(Scene thisScene, std::string thisName, float s, float r, float r_m, float o_m, std::string p);
     ~Object();
     void Update(unsigned int dt);
     void Render();

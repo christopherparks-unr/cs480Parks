@@ -14,20 +14,8 @@ using namespace std;
 
 #include "graphics.h"
 #include "global.h"
+#include "graphics_headers.h"
 #include "engine.h"
-
-/*
-std::vector< aiScene* > scene_vector;
-std::vector< std::vector<std::string> > object_vector;
-std::string cur_name;
-std::string cur_obj_path;
-std::string cur_parent;
-float cur_scale;
-float cur_rot_spd;
-float cur_orbit_rad;
-float cur_orbit_spd;
-*/
-
 
 std::string replaceOccurrences(std::string& s, const std::string& toReplace, const std::string& replaceWith)
 {
@@ -39,13 +27,62 @@ std::string replaceOccurrences(std::string& s, const std::string& toReplace, con
     return s;
 }
 
+Scene scene_from_assimp(std::string filename)
+{
+	Assimp::Importer importer;
+	const aiScene *readScene = importer.ReadFile(filename,aiProcess_Triangulate);
+
+	Scene make;
+	make.meshes.clear();
+
+	std::string otherstring(filename);
+	make.supername = otherstring;
+	
+	Mesh submake;
+	Vertex read = {{0.0f, 0.0f, 0.0f},{0.0f, 0.0f, 0.0f}};
+
+	for (int iter = 0; iter < (int) readScene->mNumMeshes; iter++)
+	{
+		std::string newstring(readScene->mMeshes[iter]->mName.C_Str());
+		submake.name = newstring;
+
+		submake.vertex_data.clear();
+
+		for (int verts = 0; verts < (int) (readScene->mMeshes[iter])->mNumVertices; verts++)
+		{
+			read.vertex[0] = (readScene->mMeshes[iter])->mVertices[verts].x;
+			read.vertex[1] = (readScene->mMeshes[iter])->mVertices[verts].y;
+			read.vertex[2] = (readScene->mMeshes[iter])->mVertices[verts].z;
+			read.color[0] = 1.0;
+			read.color[1] = 1.0;
+			read.color[2] = 1.0;
+
+			submake.vertex_data.push_back(read);
+		}
+
+		submake.indice_data.clear();
+
+		for (int faces = 0; faces < (int) (readScene->mMeshes[iter])->mNumFaces; faces++)
+		{
+			//ASSUMES triangle conversion worked
+
+			submake.indice_data.push_back( (readScene->mMeshes[iter])->mFaces[faces].mIndices[0] );
+			submake.indice_data.push_back( (readScene->mMeshes[iter])->mFaces[faces].mIndices[1] );
+			submake.indice_data.push_back( (readScene->mMeshes[iter])->mFaces[faces].mIndices[2] );
+		}
+
+		make.meshes.push_back(submake);
+	}
+
+	return make;
+}
+
 
 int main(int argc, char **argv)
 {
   //Define default path strings for vertex and fragment shaders
   std::string v = "../assets/shaders/vertex_pa1.txt";
   std::string f = "../assets/shaders/fragment_pa1.txt";
-  std::string o = "cube.obj";
   //Parse through command line arguments and search for alternate paths to shaders
   int cur_arg = 2;
   if(argc > 1)
@@ -71,8 +108,6 @@ int main(int argc, char **argv)
   }
   std::cout << "Vertex Shader: " << v << std::endl;
   std::cout << "Fragment Shader: " << f << std::endl;
-  std::cout << "Object: " << o << std::endl;
-
 
   //String that contains the directory currently being read from file
   std::string line;
@@ -80,10 +115,8 @@ int main(int argc, char **argv)
   std::ifstream dir_list;
   //Open the file, path determined by function call in graphics.cpp
   Assimp::Importer importer;
-  dir_list.open("../config.xml");
+  dir_list.open("../config.ini");
   int obj_num = 0;
-
-
 
   while(getline(dir_list,line))
   {
@@ -93,8 +126,8 @@ int main(int argc, char **argv)
     {
       if(obj_num > 0)
       {
-        std::vector<std::string> tempVec = {cur_name, cur_obj_path, cur_parent, cur_scale, cur_rot_spd, cur_orbit_rad, cur_orbit_spd};
-        scene_vector.push_back(importer.ReadFile(cur_obj_path, aiProcessPreset_TargetRealtime_Fast));
+        std::vector<std::string> tempVec = {cur_name, cur_obj_path, cur_scale, cur_rot_spd, cur_orbit_rad, cur_orbit_spd, cur_parent};
+	      scene_vector.push_back(scene_from_assimp(cur_obj_path));
         object_vector.push_back(tempVec);
         obj_num++;
       }
@@ -134,7 +167,6 @@ int main(int argc, char **argv)
     
   }
   dir_list.close();
-
 
   // Start an engine and run it then cleanup after
   Engine *engine = new Engine("Chris Parks, Grant Thompson, PA5", 800, 600);

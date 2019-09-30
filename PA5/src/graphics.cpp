@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "global.h"
 
 Graphics::Graphics()
 {
@@ -45,9 +46,25 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f)
   }
 
   // Create the objects
+  for(int iter = 0; iter < (int) scene_vector.size(); iter++)
+  {
+    for(int i = 0; i < (int) scene_vector[iter].meshes.size(); i++)
+    {
+      Object thisObj = new Object(
+        scene_vector[iter],
+        scene_vector[iter].meshes[i].name,
+        stof(object_vector[iter][2]),
+        stof(object_vector[iter][3]),
+        stof(object_vector[iter][4]),
+        stof(object_vector[iter][5]),
+        object_vector[iter][6]);
+      objects_to_render.push_back(thisObj);
+    }
+  }
   //m_cube = new Object("tray.obj", 1.0f, 8.0f, 0.25f, 0.50f, nullptr);
   //m_object = new Object(o, 1.0f, 0.0f, 0.25f, 0.00f, nullptr);
   //m_moon = new Object("tray.obj", 0.5f, 6.0f, 1.0f, 1.0f, m_cube);
+
 
   // Set up the shaders
   m_shader = new Shader();
