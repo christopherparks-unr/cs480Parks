@@ -17,10 +17,15 @@ You may specify multiple vertex and fragment shaders, though due to insufficient
 Objects are defined within ```/PA5/main.ini```. Look at the included file to see how it should be formatted. Some notes about the attributes:
 
 The first line must be the name you give the object. Use ```[<name>]``` to define the beginning of a new object and mark the end of the old object definition.
+
 The parent argument refers to the name of the object (as described above).
+
 The scene_path argument refers to the model you wish to import.  **The path is relative to ```/PA5/```.**
+
 **Note that the last object defined will not be loaded; make sure that ```[EOF]``` is the final line in the file to ensure all objects are loaded.**
+
 The mesh_name argument refers to the specific mesh you want to use. You must use the name of the mesh as defined by Assimp (specifically, the ```aiMesh.mName``` variable. All objects included are defined in main.ini with their correct mesh names).
+
 Do not define scale to be 0.0. It will break, and it doesn't make sense to use that value anyways.
 
 # Dependencies, Building, and Running
