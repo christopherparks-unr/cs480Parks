@@ -1,7 +1,5 @@
 
 #include "engine.h"
-#include <fstream>
-#include <cstdlib>
 
 Engine::Engine(string name, int width, int height)
 {
@@ -27,8 +25,6 @@ Engine::~Engine()
   m_graphics = NULL;
 }
 
-
-
 bool Engine::Initialize(std::string v, std::string f)
 {
   // Start a window
@@ -39,7 +35,6 @@ bool Engine::Initialize(std::string v, std::string f)
     printf("The window failed to initialize.\n");
     return false;
   }
-
 
   // Start the graphics, now with path support for shaders
   m_graphics = new Graphics();
@@ -90,7 +85,7 @@ void Engine::Keyboard()
     // handle key down events here
     switch(m_event.key.keysym.sym)
     {
-      //case  SDLK_1:  selection = m_graphics->m_object; break;
+      //case  SDLK_1:  selection = m_graphics->m_cube; break;
       //case  SDLK_2:  selection = m_graphics->m_moon; break;
       case  SDLK_0:  selection = nullptr; break;
     }

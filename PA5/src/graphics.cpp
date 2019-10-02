@@ -1,5 +1,82 @@
 #include "graphics.h"
-#include "global.h"
+
+std::vector<gen_object> genlist;
+
+//Parses through the ini file to set model attributes such as scale, orbit radius, and rotation speed
+void read_ini()
+{
+	gen_object make;
+	int index_read = 0;
+
+	genlist.clear();
+
+	std::string s;
+	std::filebuf fb;
+	if (fb.open("../main.ini",std::ios::in)) {
+		std::istream in(&fb);
+		while (std::getline(in,s)) {
+			if (s.length() == 0) {continue;}
+
+      //Determines the name of the object being loaded
+			if (s[0] == '[')
+      {
+				if (index_read != 0) {
+					genlist.push_back(make);
+				}
+
+				make.name.clear();
+
+				int read = 1;
+				while (s[read] != ']') {
+					make.name.push_back(s[read]);
+					read++;
+				}
+
+				index_read += 1;
+        //Defines the path of the file to import
+			} else if (s.find("scene_path=") == 0) {
+				make.scene_path = s.substr(11,s.length());
+        //Defines the name of the mesh to use. The name of the mesh is defined by assimp... Specifically the aiMesh's mName variable
+			} else if (s.find("mesh_name=") == 0) {
+				make.mesh_name = s.substr(10,s.length());
+        //Scale of the object. 1.0 is default
+			} else if (s.find("scale=") == 0) {
+				s = s.substr(6,s.length());
+				make.scale = std::stof(s);
+        //Orbit radius
+      } else if (s.find("radius=") == 0) {
+				s = s.substr(7,s.length());
+				make.radius = std::stof(s);
+        //Rotation speed
+			} else if (s.find("rotation_angle_mod=") == 0) {
+				s = s.substr(20,s.length());
+				make.rotation_angle_mod = std::stof(s);
+        //Orbit speed
+			} else if (s.find("orbit_angle_mod=") == 0) {
+				s = s.substr(17,s.length());
+				make.orbit_angle_mod = std::stof(s);
+        //Parent object
+			} else if (s.find("parent=") == 0) {
+				s = s.substr(7,s.length());
+				make.parent = s;
+			}
+		}
+		fb.close();
+	}
+}
+
+//Function that returns a parent object's pointer given its name, as defined within main.ini (eg. [ModelA])
+Object* Graphics::object_search_by_name(std::string findme)
+{
+  for (int iter = 0; iter < (int) genlist.size(); iter++)
+  {
+    if(findme.compare(genlist[iter].name) == 0)
+    {
+      return &(objlist[iter]);
+    }
+  }
+  return nullptr;
+}
 
 Graphics::Graphics()
 {
@@ -13,9 +90,10 @@ Graphics::~Graphics()
 
 bool Graphics::Initialize(int width, int height, std::string v, std::string f)
 {
+	read_ini();
+
   // Used for the linux OS
   #if !defined(__APPLE__) && !defined(MACOSX)
-    // cout << glewGetString(GLEW_VERSION) << endl;
     glewExperimental = GL_TRUE;
 
     auto status = glewInit();
@@ -45,26 +123,32 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f)
     return false;
   }
 
-  // Create the objects
-  for(int iter = 0; iter < (int) scene_vector.size(); iter++)
-  {
-    for(int i = 0; i < (int) scene_vector[iter].meshes.size(); i++)
-    {
-      Object thisObj = new Object(
-        scene_vector[iter],
-        scene_vector[iter].meshes[i].name,
-        stof(object_vector[iter][2]),
-        stof(object_vector[iter][3]),
-        stof(object_vector[iter][4]),
-        stof(object_vector[iter][5]),
-        object_vector[iter][6]);
-      objects_to_render.push_back(thisObj);
-    }
-  }
-  //m_cube = new Object("tray.obj", 1.0f, 8.0f, 0.25f, 0.50f, nullptr);
-  //m_object = new Object(o, 1.0f, 0.0f, 0.25f, 0.00f, nullptr);
-  //m_moon = new Object("tray.obj", 0.5f, 6.0f, 1.0f, 1.0f, m_cube);
 
+  //Create the objects
+	objlist.clear();
+
+  //Iterate through the list of object information, create the objects with their attributes, and push them into an object list
+	for (int iter = 0; iter < (int) genlist.size(); iter++)
+	{
+    Object temp(genlist[iter].scene_path,genlist[iter].mesh_name,
+		genlist[iter].scale,genlist[iter].radius,
+		genlist[iter].rotation_angle_mod,
+		genlist[iter].orbit_angle_mod,nullptr);
+
+		objlist.push_back(temp);
+	}
+
+  //Parent info is done separately so that the pointers will always point to what they're supposed to; otherwise the vector could be reallocated elsewhere in memory
+  for (int iter = 0; iter < (int) genlist.size(); iter++)
+  {
+    Object* par_ptr = nullptr;
+    if(genlist[iter].parent.compare("nullptr") != 0)
+    {
+      par_ptr = object_search_by_name(genlist[iter].parent);
+    }
+
+    objlist[iter].SetParent(par_ptr);
+  }
 
   // Set up the shaders
   m_shader = new Shader();
@@ -128,9 +212,11 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f)
 
 void Graphics::Update(unsigned int dt)
 {
-  // Update the object
-  //m_object->Update(dt);
-  //m_moon->Update(dt);
+  // Update the objects
+	for (int iter = 0; iter < (int) objlist.size(); iter++)
+	{
+		objlist[iter].Update(dt);
+	}
 }
 
 void Graphics::Render()
@@ -146,11 +232,12 @@ void Graphics::Render()
   glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection())); 
   glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView())); 
 
-  // Render the object
-  //glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_object->GetModel()));
-  //m_object->Render();
-  //glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_moon->GetModel()));
-  //m_moon->Render();
+  // Render the objects
+	for (int iter = 0; iter < (int) objlist.size(); iter++)
+	{
+		glUniformMatrix4fv(m_modelMatrix,1,GL_FALSE,glm::value_ptr(objlist[iter].GetModel()));
+		objlist[iter].Render();
+	}
 
   // Get any errors from OpenGL
   auto error = glGetError();

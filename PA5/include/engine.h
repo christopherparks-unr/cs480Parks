@@ -16,12 +16,10 @@ class Engine
     bool Initialize(std::string v, std::string f);
     void Run();
     void Keyboard();
-
     unsigned int getDT();
     long long GetCurrentTimeMillis();
 
     Object* selection;
-
   
   private:
     // Window related variables
