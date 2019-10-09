@@ -20,3 +20,9 @@ Now has a moon that can orbit a parent object.
 
 ## PA4: Blender and Model Loading
 Self-implemented model loader. Not a texture loader.
+
+## PA5: Assimp Model Loading
+Assimp-implemented model loader. Not a texture loader.
+
+## PA4: Assimp Texture Loading
+Model + Texture loader.
