@@ -7,6 +7,9 @@ Engine::Engine(string name, int width, int height)
   m_WINDOW_WIDTH = width;
   m_WINDOW_HEIGHT = height;
   m_FULLSCREEN = false;
+  keystate_ctrl = false;
+  keystate_r = false;
+  killswitch = false;
 }
 
 Engine::Engine(string name)
@@ -50,11 +53,11 @@ bool Engine::Initialize(std::string v, std::string f)
   return true;
 }
 
-void Engine::Run()
+bool Engine::Run()
 {
   m_running = true;
 
-  while(m_running)
+  while(m_running && !killswitch)
   {
     // Update the DT
     m_DT = getDT();
@@ -62,7 +65,7 @@ void Engine::Run()
     // Check the keyboard input
     while(SDL_PollEvent(&m_event) != 0)
     {
-      Keyboard();
+      killswitch = Keyboard();
     }
 
     // Update and render the graphics
@@ -72,9 +75,10 @@ void Engine::Run()
     // Swap to the Window
     m_window->Swap();
   }
+  return killswitch;
 }
 
-void Engine::Keyboard()
+bool Engine::Keyboard()
 {
   if(m_event.type == SDL_QUIT)
   {
@@ -88,7 +92,11 @@ void Engine::Keyboard()
       //case  SDLK_1:  selection = m_graphics->m_cube; break;
       //case  SDLK_2:  selection = m_graphics->m_moon; break;
       case  SDLK_0:  selection = nullptr; break;
-    }
+      case SDLK_LCTRL:
+      case SDLK_RCTRL: keystate_ctrl = true; break;
+      case SDLK_r: keystate_r = true; break;
+
+    }/*
     if(selection != nullptr)
     {
       switch(m_event.key.keysym.sym)
@@ -99,8 +107,16 @@ void Engine::Keyboard()
         case SDLK_a:      selection->rotation_angle_paused = selection->rotation_angle_paused == 0.0f ? 1.0f : 0.0f; break; //Pause and unpause rotation
         case SDLK_s:      selection->orbit_angle_paused = selection->orbit_angle_paused == 0.0f ? 1.0f : 0.0f; break; //Pause and unpause orbit
       }
+    }*/
+  }
+  else if(m_event.type == SDL_KEYUP)
+  {
+    switch(m_event.key.keysym.sym)
+    {
+      case SDLK_LCTRL:
+      case SDLK_RCTRL: keystate_ctrl = false; break;
+      case SDLK_r: keystate_r = false; break;
     }
-
   }
   else if (m_event.type == SDL_MOUSEBUTTONDOWN && selection != nullptr)
   {
@@ -114,6 +130,12 @@ void Engine::Keyboard()
       selection->orbit_angle_mod *= -1;
     }
   }
+  if(keystate_ctrl == true && keystate_r == true)
+    {
+      std::cout << "Reloading configuration file" << std::endl;
+      return true;
+    }
+    return false;
 }
 
 unsigned int Engine::getDT()

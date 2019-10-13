@@ -14,12 +14,17 @@ class Engine
     Engine(string name);
     ~Engine();
     bool Initialize(std::string v, std::string f);
-    void Run();
-    void Keyboard();
+    bool Run();
+    bool Keyboard();
     unsigned int getDT();
     long long GetCurrentTimeMillis();
 
     Object* selection;
+
+    bool keystate_ctrl;
+    bool keystate_r;
+
+    bool killswitch;
   
   private:
     // Window related variables

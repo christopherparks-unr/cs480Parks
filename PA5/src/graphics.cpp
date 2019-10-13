@@ -33,12 +33,27 @@ void read_ini()
 				}
 
 				index_read += 1;
+				make.scene_path = "../assets/scenes/cube.obj";
+				make.mesh_index = 0;
+				make.texture_path = "../assets/scenes/default.jpg";
+				make.scale = 1.0f;
+				make.radius = 0.0f;
+				make.rotation_angle_mod = 0.25f;
+                                make.rotation_offset = 0.0f;
+				make.orbit_angle_mod = 0.0f;
+                                make.orbit_offset = 0.0f;
+				make.parent = "nullptr";
+
         //Defines the path of the file to import
 			} else if (s.find("scene_path=") == 0) {
 				make.scene_path = s.substr(11,s.length());
         //Defines the name of the mesh to use. The name of the mesh is defined by assimp... Specifically the aiMesh's mName variable
-			} else if (s.find("mesh_name=") == 0) {
-				make.mesh_name = s.substr(10,s.length());
+			} else if (s.find("mesh_index=") == 0) {
+                                s = s.substr(11,s.length());
+				make.mesh_index = std::stoi(s);
+        //Defines a texture path, which overrides the default texture assigned to the mesh
+                        } else if (s.find("texture_path=") == 0) {
+				make.texture_path = s.substr(13,s.length());
         //Scale of the object. 1.0 is default
 			} else if (s.find("scale=") == 0) {
 				s = s.substr(6,s.length());
@@ -48,13 +63,21 @@ void read_ini()
 				s = s.substr(7,s.length());
 				make.radius = std::stof(s);
         //Rotation speed
-			} else if (s.find("rotation_angle_mod=") == 0) {
-				s = s.substr(20,s.length());
+			} else if (s.find("rotation_speed=") == 0) {
+				s = s.substr(15,s.length());
 				make.rotation_angle_mod = std::stof(s);
+       //Initial rotation offset
+			} else if (s.find("rotation_offset=") == 0) {
+				s = s.substr(16,s.length());
+				make.rotation_offset = std::stof(s);
         //Orbit speed
-			} else if (s.find("orbit_angle_mod=") == 0) {
-				s = s.substr(17,s.length());
+			} else if (s.find("orbit_speed=") == 0) {
+				s = s.substr(12,s.length());
 				make.orbit_angle_mod = std::stof(s);
+        //Initial orbit offset
+			} else if (s.find("orbit_offset=") == 0) {
+				s = s.substr(13,s.length());
+				make.orbit_offset = std::stof(s);
         //Parent object
 			} else if (s.find("parent=") == 0) {
 				s = s.substr(7,s.length());
@@ -85,6 +108,10 @@ Graphics::Graphics()
 
 Graphics::~Graphics()
 {
+
+  genlist.clear();
+
+  objlist.clear();
 
 }
 
@@ -130,10 +157,12 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f)
   //Iterate through the list of object information, create the objects with their attributes, and push them into an object list
 	for (int iter = 0; iter < (int) genlist.size(); iter++)
 	{
-    Object temp(genlist[iter].scene_path,genlist[iter].mesh_name,
+    Object temp(genlist[iter].scene_path,genlist[iter].mesh_index,
+                genlist[iter].texture_path,
 		genlist[iter].scale,genlist[iter].radius,
-		genlist[iter].rotation_angle_mod,
-		genlist[iter].orbit_angle_mod,nullptr);
+		genlist[iter].rotation_angle_mod,genlist[iter].rotation_offset,
+		genlist[iter].orbit_angle_mod,genlist[iter].orbit_offset,
+                nullptr);
 
 		objlist.push_back(temp);
 	}

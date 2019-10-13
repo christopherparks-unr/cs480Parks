@@ -14,12 +14,15 @@ struct gen_object
 {
 	std::string name;
 	std::string scene_path;
-	std::string mesh_name;
+	int mesh_index;
+        std::string texture_path;
 	std::string parent;
 	float scale;
 	float radius;
 	float rotation_angle_mod;
+        float rotation_offset;
 	float orbit_angle_mod;
+        float orbit_offset;
 };
 
 
