@@ -24,6 +24,26 @@ class Engine
     bool keystate_ctrl;
     bool keystate_r;
 
+    bool keystate_w;
+    bool keystate_s;
+    bool keystate_a;
+    bool keystate_d;
+
+    float pos_x;
+    float pos_y;
+    float pos_z;
+
+    float move_speed;
+
+    float move_x;
+    float move_y;
+    float move_z;
+
+    float view_theta;
+    float view_phi;
+
+    bool mouse_active;
+
     bool killswitch;
   
   private:

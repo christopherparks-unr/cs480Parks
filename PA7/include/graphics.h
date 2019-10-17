@@ -35,13 +35,14 @@ class Graphics
     void Update(unsigned int dt);
     void Render();
 
-	std::vector<Object> objlist;
-	Object* object_search_by_name(std::string findme);
+    std::vector<Object> objlist;
+    Object* object_search_by_name(std::string findme);
+    Camera *m_camera;
 
   private:
     std::string ErrorString(GLenum error);
 
-    Camera *m_camera;
+    
     Shader *m_shader;
 
     GLint m_projectionMatrix;

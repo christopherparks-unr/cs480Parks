@@ -9,6 +9,7 @@ class Camera
     Camera();
     ~Camera();
     bool Initialize(int w, int h);
+    bool Reposition(float eye_x, float eye_y, float eye_z, float focus_x, float focus_y, float focus_z, int w, int h);
     glm::mat4 GetProjection();
     glm::mat4 GetView();
   

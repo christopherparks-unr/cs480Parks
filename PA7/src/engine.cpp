@@ -1,5 +1,6 @@
 
 #include "engine.h"
+#include <cmath>
 
 Engine::Engine(string name, int width, int height)
 {
@@ -18,6 +19,26 @@ Engine::Engine(string name)
   m_WINDOW_HEIGHT = 0;
   m_WINDOW_WIDTH = 0;
   m_FULLSCREEN = true;
+
+  keystate_w = false;
+  keystate_s = false;
+  keystate_a = false;
+  keystate_d = false;
+
+  move_x = 0.0;
+  move_y = 0.0;
+  move_z = 0.0;
+
+  move_speed = 32.0;
+
+  pos_x = 0.0;
+  pos_y = 32.0;
+  pos_z = -64.0;
+
+  view_theta = 0.0; //Vertical
+  view_phi = 0.0; //Horizontal
+
+  mouse_active = false;
 }
 
 Engine::~Engine()
@@ -38,7 +59,6 @@ bool Engine::Initialize(std::string v, std::string f)
     printf("The window failed to initialize.\n");
     return false;
   }
-
   // Start the graphics, now with path support for shaders
   m_graphics = new Graphics();
   if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, v, f))
@@ -84,6 +104,15 @@ bool Engine::Keyboard()
   {
     m_running = false;
   }
+  else if(m_event.type == SDL_MOUSEMOTION && mouse_active)
+  {
+    view_phi = view_phi + (float)atan(m_event.motion.xrel / (m_WINDOW_WIDTH * 32.0));
+    if(view_phi >= 2 * M_PI) {view_phi -= 2 * M_PI;}
+    if(view_phi < 0) {view_phi += 2 * M_PI;}
+    view_theta = view_theta + (float)atan(m_event.motion.yrel / (m_WINDOW_HEIGHT * 32.0));
+    if(view_theta >= 2 * M_PI) {view_theta -= 2 * M_PI;}
+    if(view_theta < 0) {view_theta += 2 * M_PI;}
+  }
   else if (m_event.type == SDL_KEYDOWN)
   {
     // handle key down events here
@@ -95,7 +124,10 @@ bool Engine::Keyboard()
       case SDLK_LCTRL:
       case SDLK_RCTRL: keystate_ctrl = true; break;
       case SDLK_r: keystate_r = true; break;
-
+      case SDLK_w: keystate_w = true; break;
+      case SDLK_s: keystate_s = true; break;
+      case SDLK_a: keystate_a = true; break;
+      case SDLK_d: keystate_d = true; break;
     }/*
     if(selection != nullptr)
     {
@@ -116,20 +148,80 @@ bool Engine::Keyboard()
       case SDLK_LCTRL:
       case SDLK_RCTRL: keystate_ctrl = false; break;
       case SDLK_r: keystate_r = false; break;
+      case SDLK_w: keystate_w = false; break;
+      case SDLK_s: keystate_s = false; break;
+      case SDLK_a: keystate_a = false; break;
+      case SDLK_d: keystate_d = false; break;
     }
   }
-  else if (m_event.type == SDL_MOUSEBUTTONDOWN && selection != nullptr)
+  else if (m_event.type == SDL_MOUSEBUTTONDOWN)
   {
     // handle mouse down events here
     if (m_event.button.button == SDL_BUTTON_LEFT)
     {
-      selection->rotation_angle_mod *= -1;
+      if(!mouse_active)
+      {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        //SDL_WarpMouseInWindow(m_window->gWindow, round(m_WINDOW_WIDTH / 2), round(m_WINDOW_HEIGHT / 2));
+      }
+      mouse_active = true;
     }
-    else if (m_event.button.button == SDL_BUTTON_RIGHT)
-    {
-      selection->orbit_angle_mod *= -1;
-    }
+
   }
+  else if (m_event.type == SDL_MOUSEBUTTONUP)
+  {
+    // handle mouse down events here
+    if (m_event.button.button == SDL_BUTTON_LEFT)
+    {
+      SDL_SetRelativeMouseMode(SDL_FALSE);
+      mouse_active = false;
+    }
+
+  }
+  move_x = 0.0;
+  move_z = 0.0;
+  move_y = 0.0;
+  if(keystate_w)
+  {
+    move_x += (float)cos(view_theta) * cos(view_phi);
+    move_z += (float)cos(view_theta) * sin(view_phi);
+    move_y += (float)sin(view_theta);
+  }
+  if(keystate_s)
+  {
+    move_x += -1.0 * (float)cos(view_theta) * cos(view_phi);
+    move_z += -1.0 * (float)cos(view_theta) * sin(view_phi);
+    move_y += -1.0 * (float)sin(view_theta);
+  }
+  
+  if(keystate_a)
+  {
+    move_x += (float)cos(view_phi - (M_PI / 2));
+    move_z += (float)sin(view_phi - (M_PI / 2));
+    move_y += 0.0;
+  }
+  if(keystate_d)
+  {
+    move_x += (float)cos(view_phi + (M_PI / 2));
+    move_z += (float)sin(view_phi + (M_PI / 2));
+    move_y += 0.0;
+  }
+
+  pos_x += move_x;
+  pos_y += move_y;
+  pos_z += move_z;
+
+  m_graphics->m_camera->Reposition(pos_x, pos_y, pos_z,
+  pos_x + (1.0 * (float)cos(view_theta) * (float)cos(view_phi)),
+  pos_y + (1.0 * (float)sin(view_theta)),
+  pos_z + (1.0 * (float)cos(view_theta) * (float)sin(view_phi)),
+  m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
+/*
+printf("Pos: (%f,%f,%f) View: (%f, %f) -> (%f, %f, %f)\n", pos_x, pos_y, pos_z, view_phi, view_theta,
+pos_x + move_speed * (float)cos(view_theta) * (float)cos(view_phi),
+pos_y + move_speed * (float)sin(view_theta),
+pos_z + move_speed * (float)cos(view_theta) * (float)sin(view_phi));
+*/
   if(keystate_ctrl == true && keystate_r == true)
     {
       std::cout << "Reloading configuration file" << std::endl;
