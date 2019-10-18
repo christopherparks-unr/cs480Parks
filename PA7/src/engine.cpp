@@ -29,8 +29,6 @@ Engine::Engine(string name)
   move_y = 0.0;
   move_z = 0.0;
 
-  move_speed = 32.0;
-
   pos_x = 0.0;
   pos_y = 32.0;
   pos_z = -64.0;
@@ -52,7 +50,6 @@ Engine::~Engine()
 bool Engine::Initialize(std::string v, std::string f)
 {
   // Start a window
-  selection = nullptr;
   m_window = new Window();
   if(!m_window->Initialize(m_WINDOW_NAME, &m_WINDOW_WIDTH, &m_WINDOW_HEIGHT))
   {
@@ -66,6 +63,8 @@ bool Engine::Initialize(std::string v, std::string f)
     printf("The graphics failed to initialize.\n");
     return false;
   }
+
+  selection = m_graphics->object_search_by_name("Earth");
 
   // Set the time
   m_currentTimeMillis = GetCurrentTimeMillis();
@@ -90,6 +89,13 @@ bool Engine::Run()
 
     // Update and render the graphics
     m_graphics->Update(m_DT);
+
+    //If the user is not in freecam mode, force the camera to look at the selected planet
+    if (selection != nullptr) {
+        m_graphics->m_camera->Reposition(selection->orbit_angle, selection->radius,m_WINDOW_WIDTH,m_WINDOW_HEIGHT);
+    }
+
+    //Draw the graphics
     m_graphics->Render();
 
     // Swap to the Window
@@ -100,16 +106,19 @@ bool Engine::Run()
 
 bool Engine::Keyboard()
 {
+
+
   if(m_event.type == SDL_QUIT)
   {
     m_running = false;
   }
   else if(m_event.type == SDL_MOUSEMOTION && mouse_active)
   {
-    view_phi = view_phi + (float)atan(m_event.motion.xrel / (m_WINDOW_WIDTH * 32.0));
+    //If the user is in freecam mode and is dragging the mouse, calculate spherical coordinate changes base upon the mouse movement
+    view_phi = view_phi + (float)(m_event.motion.xrel / (m_WINDOW_WIDTH * 0.1));
     if(view_phi >= 2 * M_PI) {view_phi -= 2 * M_PI;}
     if(view_phi < 0) {view_phi += 2 * M_PI;}
-    view_theta = view_theta + (float)atan(m_event.motion.yrel / (m_WINDOW_HEIGHT * 32.0));
+    view_theta = view_theta + (float)(-m_event.motion.yrel / (m_WINDOW_HEIGHT * 0.1));
     if(view_theta >= 2 * M_PI) {view_theta -= 2 * M_PI;}
     if(view_theta < 0) {view_theta += 2 * M_PI;}
   }
@@ -118,9 +127,25 @@ bool Engine::Keyboard()
     // handle key down events here
     switch(m_event.key.keysym.sym)
     {
-      //case  SDLK_1:  selection = m_graphics->m_cube; break;
-      //case  SDLK_2:  selection = m_graphics->m_moon; break;
-      case  SDLK_0:  selection = nullptr; break;
+      //Set the selected planet if they press a number
+      case  SDLK_1:  selection = m_graphics->object_search_by_name("Mercury"); break;
+      case  SDLK_2:  selection = m_graphics->object_search_by_name("Venus"); break;
+      case  SDLK_3:  selection = m_graphics->object_search_by_name("Earth"); break;
+      case  SDLK_4:  selection = m_graphics->object_search_by_name("Mars"); break;
+      case  SDLK_5:  selection = m_graphics->object_search_by_name("Jupiter"); break;
+      case  SDLK_6:  selection = m_graphics->object_search_by_name("Saturn"); break;
+      case  SDLK_7:  selection = m_graphics->object_search_by_name("Uranus"); break;
+      case  SDLK_8:  selection = m_graphics->object_search_by_name("Neptune"); break;
+      case  SDLK_9:  selection = m_graphics->object_search_by_name("Pluto"); break;
+      case  SDLK_0:  
+                if (selection != nullptr) {
+                  //Re-enter freecam by setting near-identical coordinates
+                pos_x = 8.0 + (sin(selection->orbit_angle) * selection->radius);
+                pos_y = 8.0;
+                pos_z = 8.0 + (cos(selection->orbit_angle) * selection->radius);
+                view_theta = -M_PI / 5;
+                view_phi = -3*M_PI / 4;
+                } selection = nullptr; break;
       case SDLK_LCTRL:
       case SDLK_RCTRL: keystate_ctrl = true; break;
       case SDLK_r: keystate_r = true; break;
@@ -128,18 +153,10 @@ bool Engine::Keyboard()
       case SDLK_s: keystate_s = true; break;
       case SDLK_a: keystate_a = true; break;
       case SDLK_d: keystate_d = true; break;
-    }/*
-    if(selection != nullptr)
-    {
-      switch(m_event.key.keysym.sym)
-      {
-        case SDLK_ESCAPE: m_running = false; break;
-        case SDLK_q:      selection->rotation_angle_mod *= -1; break; //Reverse rotation direction
-        case SDLK_w:      selection->orbit_angle_mod *= -1; break; //Reverse orbit direction
-        case SDLK_a:      selection->rotation_angle_paused = selection->rotation_angle_paused == 0.0f ? 1.0f : 0.0f; break; //Pause and unpause rotation
-        case SDLK_s:      selection->orbit_angle_paused = selection->orbit_angle_paused == 0.0f ? 1.0f : 0.0f; break; //Pause and unpause orbit
-      }
-    }*/
+      case SDLK_F12: m_graphics->menu_draw = false; m_graphics->meme_draw = !m_graphics->meme_draw; break; //Menu and meme visibility toggles
+      case SDLK_m: m_graphics->meme_draw = false; m_graphics->menu_draw = !m_graphics->menu_draw; break;
+
+    }
   }
   else if(m_event.type == SDL_KEYUP)
   {
@@ -157,27 +174,37 @@ bool Engine::Keyboard()
   else if (m_event.type == SDL_MOUSEBUTTONDOWN)
   {
     // handle mouse down events here
+    if (m_event.button.button == SDL_BUTTON_RIGHT)
+    {
+      mouse_active = true; //Set the freecam drag flag to true
+    }
     if (m_event.button.button == SDL_BUTTON_LEFT)
     {
-      if(!mouse_active)
-      {
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-        //SDL_WarpMouseInWindow(m_window->gWindow, round(m_WINDOW_WIDTH / 2), round(m_WINDOW_HEIGHT / 2));
-      }
-      mouse_active = true;
+        if (m_event.button.x >= 50 && m_event.button.x <= 85 &&
+            m_event.button.y >= 110 && m_event.button.y <= 150) {
+            if (m_graphics->simulation_speed > 0 && m_graphics->menu_draw) {
+                m_graphics->simulation_speed -= 1;
+            } //Simulate button pressed on menu to speed up and slow down simulation
+        } else if (m_event.button.x >= 270 && m_event.button.x <= 310 &&
+                   m_event.button.y >= 110 && m_event.button.y <= 150) {
+            if (m_graphics->simulation_speed < 4 && m_graphics->menu_draw) {
+                m_graphics->simulation_speed += 1;
+            }
+
+        }
     }
 
   }
   else if (m_event.type == SDL_MOUSEBUTTONUP)
   {
     // handle mouse down events here
-    if (m_event.button.button == SDL_BUTTON_LEFT)
+    if (m_event.button.button == SDL_BUTTON_RIGHT)
     {
-      SDL_SetRelativeMouseMode(SDL_FALSE);
-      mouse_active = false;
+      mouse_active = false; //Unset freecam drag flag
     }
 
   }
+  //Freecam movement variables, which get added to the camera position
   move_x = 0.0;
   move_z = 0.0;
   move_y = 0.0;
@@ -211,17 +238,13 @@ bool Engine::Keyboard()
   pos_y += move_y;
   pos_z += move_z;
 
+  //Reposition the camera so it looks at an arbitrary point
   m_graphics->m_camera->Reposition(pos_x, pos_y, pos_z,
   pos_x + (1.0 * (float)cos(view_theta) * (float)cos(view_phi)),
   pos_y + (1.0 * (float)sin(view_theta)),
   pos_z + (1.0 * (float)cos(view_theta) * (float)sin(view_phi)),
   m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
-/*
-printf("Pos: (%f,%f,%f) View: (%f, %f) -> (%f, %f, %f)\n", pos_x, pos_y, pos_z, view_phi, view_theta,
-pos_x + move_speed * (float)cos(view_theta) * (float)cos(view_phi),
-pos_y + move_speed * (float)sin(view_theta),
-pos_z + move_speed * (float)cos(view_theta) * (float)sin(view_phi));
-*/
+
   if(keystate_ctrl == true && keystate_r == true)
     {
       std::cout << "Reloading configuration file" << std::endl;

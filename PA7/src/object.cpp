@@ -78,7 +78,6 @@ Scene scene_from_assimp(std::string filename, int meshIndex, std::string texture
 	Scene createdScene;
 	createdScene.meshes.clear();
         createdScene.supername = filename;
-	//createdScene.supername = filename + "_" + std::to_string(meshIndex);
 	
 	Mesh wantedMesh;
 	Vertex read;
@@ -121,6 +120,9 @@ Scene scene_from_assimp(std::string filename, int meshIndex, std::string texture
 				read.coord[0] = (readScene->mMeshes[iter])->mTextureCoords[0][verts].x;
 				read.coord[1] = (readScene->mMeshes[iter])->mTextureCoords[0][verts].y;
 			}
+			read.norm[0] = (readScene->mMeshes[iter])->mNormals[verts].x;
+			read.norm[1] = (readScene->mMeshes[iter])->mNormals[verts].y;
+			read.norm[2] = (readScene->mMeshes[iter])->mNormals[verts].z;
 
 			wantedMesh.vertex_data.push_back(read);
 		}
@@ -187,7 +189,7 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float s, float r, floa
 	Vertices = currentScene.meshes[mesh_index].vertex_data;
 	Indices = currentScene.meshes[mesh_index].indice_data;
 
-	printf("Successfully loaded %s with mesh number %i. It has %i non-unique vertices and %i non-unique indices\n", scene_path.c_str(), mesh_index, (int)Vertices.size(), (int)Indices.size());
+	//printf("Successfully loaded %s with mesh number %i. It has %i non-unique vertices and %i non-unique indices\n", scene_path.c_str(), mesh_index, (int)Vertices.size(), (int)Indices.size());
 
   model = glm::mat4(1.0f);
 
@@ -216,8 +218,10 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float s, float r, floa
 	
 }
 
-void Object::Update(unsigned int dt)
+void Object::Update(unsigned int idt)
 {
+  float dt = idt/10.0;
+
   //Default to identity matrix
   model = glm::mat4(1.0f);
   if(parent != nullptr)
@@ -318,7 +322,7 @@ void Object::Render()
 
   glBindBuffer(GL_ARRAY_BUFFER, VB);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,norm));
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,coord));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);

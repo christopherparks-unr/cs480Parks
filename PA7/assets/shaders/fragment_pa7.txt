@@ -1,0 +1,22 @@
+#version 330
+
+          uniform sampler2D textu;
+          
+          varying vec2 coord;
+          varying vec4 normal;
+          varying vec4 give_pos;
+          //smooth in vec3 color;
+          
+          out vec4 frag_color; 
+          
+          void main(void) 
+          { 
+             //frag_color = vec4(color.rgb, 1.0); 
+             //frag_color = vec4(1.0,1.0,1.0, 1.0);
+             frag_color = texture2D(textu, coord.xy);
+
+             vec4 posnorm = normalize(vec4(-give_pos.xyz,0.0));
+             float brightness = clamp(dot(normal,posnorm)+0.3,0.15,1.0);
+
+             frag_color *= brightness;
+          } 

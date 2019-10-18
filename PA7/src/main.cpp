@@ -9,7 +9,7 @@ int load(std::string v, std::string f)
   // Start an engine and run it then cleanup after
   while(endProg)
   {
-    Engine *engine = new Engine("Chris Parks & Grant Thompson, PA7", 800, 600);
+    Engine *engine = new Engine("Chris Parks & Grant Thompson, PA7", 1280, 720);
     if(!engine->Initialize(v, f))
     {
       printf("The engine failed to start.\n");
@@ -31,8 +31,8 @@ int load(std::string v, std::string f)
 int main(int argc, char **argv)
 {
   //Define default path strings for vertex and fragment shaders
-  std::string v = "../assets/shaders/vertex_pa6.txt";
-  std::string f = "../assets/shaders/fragment_pa6.txt";
+  std::string v = "../assets/shaders/vertex_pa7.txt";
+  std::string f = "../assets/shaders/fragment_pa7.txt";
   //Parse through command line arguments and search for alternate paths to shaders
   int cur_arg = 2;
   if(argc > 1)

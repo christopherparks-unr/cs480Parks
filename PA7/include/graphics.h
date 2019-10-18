@@ -38,12 +38,21 @@ class Graphics
     std::vector<Object> objlist;
     Object* object_search_by_name(std::string findme);
     Camera *m_camera;
+	
+    Camera *m_menu_camera;
+    Object* menu_obj[5];
+    int simulation_speed;
+    bool menu_draw;
+    
+	Object* meme;
+	bool meme_draw;
 
   private:
     std::string ErrorString(GLenum error);
 
     
     Shader *m_shader;
+    Shader *m_menu_shader;
 
     GLint m_projectionMatrix;
     GLint m_viewMatrix;

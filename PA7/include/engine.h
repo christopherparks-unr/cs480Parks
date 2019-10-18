@@ -33,8 +33,6 @@ class Engine
     float pos_y;
     float pos_z;
 
-    float move_speed;
-
     float move_x;
     float move_y;
     float move_z;

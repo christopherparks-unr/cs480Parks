@@ -150,6 +150,13 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f)
     return false;
   }
 
+  // Init menuspace camera
+  m_menu_camera = new Camera();
+  if(!m_menu_camera->Initialize(width, height))
+  {
+    printf("Menu camera Failed to Initialize\n");
+    return false;
+  }
 
   //Create the objects
 	objlist.clear();
@@ -178,6 +185,17 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f)
 
     objlist[iter].SetParent(par_ptr);
   }
+
+  simulation_speed = 3;
+
+  menu_obj[0] = new Object("../assets/scenes/menu.obj",0,"../assets/scenes/menu_zero.png",1.0,0.0,0.0,0.0,0.0,0.0,nullptr);
+  menu_obj[1] = new Object("../assets/scenes/menu.obj",0,"../assets/scenes/menu_one.png",1.0,0.0,0.0,0.0,0.0,0.0,nullptr);
+  menu_obj[2] = new Object("../assets/scenes/menu.obj",0,"../assets/scenes/menu_two.png",1.0,0.0,0.0,0.0,0.0,0.0,nullptr);
+  menu_obj[3] = new Object("../assets/scenes/menu.obj",0,"../assets/scenes/menu_three.png",1.0,0.0,0.0,0.0,0.0,0.0,nullptr);
+  menu_obj[4] = new Object("../assets/scenes/menu.obj",0,"../assets/scenes/menu_four.png",1.0,0.0,0.0,0.0,0.0,0.0,nullptr);
+
+  meme_draw = false;
+  meme = new Object("../assets/scenes/menu.obj",0,"../assets/scenes/harris.png",1.0,0.0,0.0,0.0,0.0,0.0,nullptr);
 
   // Set up the shaders
   m_shader = new Shader();
@@ -208,33 +226,38 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f)
     return false;
   }
 
-  // Locate the projection matrix in the shader
-  m_projectionMatrix = m_shader->GetUniformLocation("projectionMatrix");
-  if (m_projectionMatrix == INVALID_UNIFORM_LOCATION) 
+  // Add the menu shader
+  m_menu_shader = new Shader();
+  if (!m_menu_shader->Initialize())
   {
-    printf("m_projectionMatrix not found\n");
+    printf("Menu Shader Failed to Initialize\n");
     return false;
   }
 
-  // Locate the view matrix in the shader
-  m_viewMatrix = m_shader->GetUniformLocation("viewMatrix");
-  if (m_viewMatrix == INVALID_UNIFORM_LOCATION) 
+  if (!m_menu_shader->AddShader(GL_VERTEX_SHADER,"../assets/shaders/vertex_menu_pa7.txt"))
   {
-    printf("m_viewMatrix not found\n");
+    printf("Menu Vertex Shader failed to Initialize\n");
     return false;
   }
 
-  // Locate the model matrix in the shader
-  m_modelMatrix = m_shader->GetUniformLocation("modelMatrix");
-  if (m_modelMatrix == INVALID_UNIFORM_LOCATION) 
+  if (!m_menu_shader->AddShader(GL_FRAGMENT_SHADER,"../assets/shaders/fragment_menu_pa7.txt"))
   {
-    printf("m_modelMatrix not found\n");
+    printf("Menu Fragment Shader failed to Initialize\n");
+    return false;
+  }
+
+  // Connect the program
+  if(!m_menu_shader->Finalize())
+  {
+    printf("Program to Finalize\n");
     return false;
   }
 
   //enable depth testing
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
+  //Flag that determines if the menu is drawn
+  menu_draw = true;
 
   return true;
 }
@@ -244,8 +267,17 @@ void Graphics::Update(unsigned int dt)
   // Update the objects
 	for (int iter = 0; iter < (int) objlist.size(); iter++)
 	{
-		objlist[iter].Update(dt);
+      if (simulation_speed == 0) {
+			objlist[iter].Update(0); //Halt dt if simulation speed is zero
+		} else {
+			objlist[iter].Update(dt*0.25*pow(2.0,simulation_speed-1.0)); //Otherwise update with a dt multiplier
+		}
 	}
+  //Update the menu objects (one for each potential simulation speed state)
+	for (int iter = 0; iter < 5; iter++)
+	{
+        menu_obj[iter]->Update(dt);
+  }
 }
 
 void Graphics::Render()
@@ -254,7 +286,31 @@ void Graphics::Render()
   glClearColor(0.0, 0.0, 0.2, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // Start the correct program
+
+  //Main object rendering
+  //---------------------
+  // Locate the projection matrix in the shader
+  m_projectionMatrix = m_shader->GetUniformLocation("projectionMatrix");
+  if (m_projectionMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_projectionMatrix not found\n");
+  }
+
+  // Locate the view matrix in the shader
+  m_viewMatrix = m_shader->GetUniformLocation("viewMatrix");
+  if (m_viewMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_viewMatrix not found\n");
+  }
+
+  // Locate the model matrix in the shader
+  m_modelMatrix = m_shader->GetUniformLocation("modelMatrix");
+  if (m_modelMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_modelMatrix not found\n");
+  }
+
+  // Start the generic (lighting) shader
   m_shader->Enable();
 
   // Send in the projection and view to the shader
@@ -267,6 +323,43 @@ void Graphics::Render()
 		glUniformMatrix4fv(m_modelMatrix,1,GL_FALSE,glm::value_ptr(objlist[iter].GetModel()));
 		objlist[iter].Render();
 	}
+  //--------------------
+  //Menu objects are located in a separate "space" using a different camera, use their own view and projection matrix, etc.
+  //Menu object loading
+  //--------------------
+  // Locate the projection matrix in the shader
+  m_projectionMatrix = m_menu_shader->GetUniformLocation("projectionMatrix");
+  if (m_projectionMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_projectionMatrix not found\n");
+  }
+
+  // Locate the view matrix in the shader
+  m_viewMatrix = m_menu_shader->GetUniformLocation("viewMatrix");
+  if (m_viewMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_viewMatrix not found\n");
+  }
+
+  // Locate the model matrix in the shader
+  m_modelMatrix = m_menu_shader->GetUniformLocation("modelMatrix");
+  if (m_modelMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_modelMatrix not found\n");
+  }
+
+  // Start the menu shader
+  m_menu_shader->Enable();
+
+  // Send in the projection and view to the shader
+  glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_menu_camera->GetProjection())); 
+  glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_menu_camera->GetView())); 
+
+  glUniformMatrix4fv(m_modelMatrix,1,GL_FALSE,glm::value_ptr(menu_obj[simulation_speed]->GetModel()));
+  //Draw the menu itself
+  if (menu_draw && !meme_draw) {menu_obj[simulation_speed]->Render();}
+  //Draw the meme
+  if (meme_draw) {meme->Render();};
 
   // Get any errors from OpenGL
   auto error = glGetError();
@@ -275,6 +368,7 @@ void Graphics::Render()
     string val = ErrorString( error );
     std::cout<< "Error initializing OpenGL! " << error << ", " << val << std::endl;
   }
+  //-----------------
 }
 
 std::string Graphics::ErrorString(GLenum error)
