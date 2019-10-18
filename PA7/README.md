@@ -3,10 +3,6 @@ Group Project:
 Chris Parks
 Grant Thompson
 
-## Adding objects to the project
-Within ```/assets/scenes/``` are a few sample object files. cube.obj is the orginal object that was hard-coded in the first project. dragon.obj is the sample file found on the class website, already included for your convenience. The same applies for buddha.obj.
-
-You can put objects anywhere you like so long as you reference the correct path -- you are not limited to the /assets/scenes/ folder.
 
 ## Instructions for Use
 The makefile generates a file called ```PA7``` to run. If no arguments are provided, it will run using the default shaders located in ```assets/shaders/```. Use ```-v <path>``` to load a different vertex shader, and ```-f <path>``` to load a different fragment shader.
@@ -14,17 +10,15 @@ The makefile generates a file called ```PA7``` to run. If no arguments are provi
 You may specify multiple vertex and fragment shaders, though due to insufficient knowledge on my behalf, the program will only load the last ones specified. Ignores all other arguments.
 
 ## Defining Objects to Render
-Objects are defined within ```/PA7/main.ini```. Look at the included file to see how it should be formatted. Some notes about the attributes:
+Objects are defined within ```/PA7/main.ini```. Look at the included file to see how it should be formatted. Since this is a project specifically meant to simulate a solar system, do not modify the .ini file in any signficant way, unless you want to observe how the .ini file works. Some notes about the attributes:
 
 The first line must be the name you give the object. Use ```[<name>]``` to define the beginning of a new object and mark the end of the old object definition.
 
 The parent argument refers to the name of the object (as described above).
 
-The scene_path argument refers to the model you wish to import.  **The path is relative to ```/PA7/```.**
+The scene_path argument refers to the model you wish to import.  **The path is relative to the .ini file.**
 
 **Note that the last object defined will not be loaded; make sure that ```[EOF]``` is the final line in the file to ensure all objects are loaded.**
-
-The mesh_name argument refers to the specific mesh you want to use. You must use the name of the mesh as defined by Assimp (specifically, the ```aiMesh.mName``` variable. All objects included are defined in main.ini with their correct mesh names).
 
 Do not define scale to be 0.0. It will break, and it doesn't make sense to use that value anyways.
 
