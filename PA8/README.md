@@ -1,7 +1,11 @@
-# PA8: Pinball Part I
+# PA8: Pinball Part 1
 Group Project:
 Chris Parks
 Grant Thompson
+
+## This project
+
+This project implements a dynamic sphere and cube that interact with each other, as well as a static cylinder and a triangle mesh constructed from the model of a board.
 
 ## Adding objects to the project
 Within ```/assets/scenes/``` are a few sample object files. cube.obj is the orginal object that was hard-coded in the first project. dragon.obj is the sample file found on the class website, already included for your convenience. The same applies for buddha.obj.
@@ -35,8 +39,9 @@ For both of the operating systems to run this project installation of these thre
 
 This project uses OpenGL 3.3. Some computers, such as virtual machines in the ECC, can not run this version. In in order to run OpenGL 2.7 follow the instructions at [Using OpenGL 2.7](https://github.com/HPC-Vis/computer-graphics/wiki/Using-OpenGL-2.7)
 
-This project also uses [Assimp 4.0.1](https://github.com/assimp/assimp/releases/tag/v4.1.0/).
-It also uses [stb_image.h](https://raw.githubusercontent.com/nothings/stb/master/stb_image.h) to implement texture loading.
+This project also uses [Assimp 4.0.1](https://github.com/assimp/assimp/releases/tag/v4.1.0/) and [stb_image.h](https://raw.githubusercontent.com/nothings/stb/master/stb_image.h) to implement texture loading.
+
+Finally, this project implements the [Bullet Physics Engine](https://pybullet.org/Bullet/BulletFull/index.html).
 
 ### Ubuntu/Linux
 ```bash

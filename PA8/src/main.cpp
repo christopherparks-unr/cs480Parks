@@ -9,7 +9,7 @@ int load(std::string v, std::string f)
   // Start an engine and run it then cleanup after
   while(endProg)
   {
-    Engine *engine = new Engine("Chris Parks & Grant Thompson, PA6", 800, 600);
+    Engine *engine = new Engine("Chris Parks & Grant Thompson, PA8", 800, 600);
     if(!engine->Initialize(v, f))
     {
       printf("The engine failed to start.\n");
