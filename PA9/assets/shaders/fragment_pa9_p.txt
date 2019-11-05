@@ -1,0 +1,30 @@
+#version 330
+
+          uniform sampler2D textu;
+          
+          varying vec2 coord;
+          //in vec3 color;
+
+          in vec3 qL;
+          in vec3 qH;
+          in vec3 qN;          
+
+          out vec4 frag_color;
+          
+          uniform float material_shininess;
+
+          void main(void) 
+          { 
+             //frag_color = vec4(color.rgb, 1.0); 
+             //frag_color = vec4(1.0,1.0,1.0, 1.0);
+
+             float Kd = max( dot(qL,qN),0.0 );
+             vec4 dif = vec4( Kd, Kd, Kd, 0.0 );
+             float Ks = pow( max(dot(qN, qH),0.0), material_shininess );
+             if ( dot(qL,qN) < 0.0 ) { Ks = 0.0; }
+             vec4 spc = vec4( Ks, Ks, Ks, 0.0 );
+
+             vec4 shade = dif + spc;
+
+             frag_color = vec4( (texture2D(textu, coord.xy)*shade).xyz, 1.0 );
+          } 

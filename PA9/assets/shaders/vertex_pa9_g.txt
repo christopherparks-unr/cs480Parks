@@ -1,0 +1,39 @@
+#version 330
+
+          
+          layout (location = 0) in vec3 v_position; 
+          layout (location = 1) in vec3 v_norm; 
+          layout (location = 2) in vec2 v_coord;
+          
+          varying vec2 coord; 
+          //out vec3 color;
+          out vec4 shade;
+
+          uniform mat4 projectionMatrix; 
+          uniform mat4 viewMatrix;
+          uniform mat4 modelMatrix; 
+          
+          uniform vec4 light_position;
+          uniform float material_shininess;
+
+          void main(void) 
+          { 
+            vec4 v = vec4(v_position, 1.0); 
+            gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v; 
+            coord = v_coord; 
+	    //color = v_color;
+
+            vec3 L = normalize( light_position.xyz - v_position );
+            vec3 E = normalize( -v_position );
+            vec3 H = normalize( L + E );
+            vec3 N = normalize( (viewMatrix * modelMatrix * vec4(v_norm,0.0)).xyz );
+            
+            float Kd = max( dot(L,N),0.0 );
+            vec4 dif = vec4( Kd, Kd, Kd, 0.0 );
+            float Ks = pow( max(dot(N, H),0.0), material_shininess );
+            if ( dot(L,N) < 0.0 ) { Ks = 0.0; }
+            vec4 spc = vec4( Ks, Ks, Ks, 0.0 );
+
+            shade = dif + spc;
+
+          } 
