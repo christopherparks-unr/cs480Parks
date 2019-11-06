@@ -80,7 +80,6 @@ Scene scene_from_assimp(std::string filename, int meshIndex, std::string texture
 	Scene createdScene;
 	createdScene.meshes.clear();
         createdScene.supername = filename;
-	//createdScene.supername = filename + "_" + std::to_string(meshIndex);
 	
 	Mesh wantedMesh;
 	Vertex read;
@@ -148,15 +147,7 @@ Scene scene_from_assimp(std::string filename, int meshIndex, std::string texture
 //Finds the scene object from the list of scenes (searched by path)
 Scene find_scene_from_path(std::string input, int mesh_index, std::string textureOverride)
 {
-  //If the scene has already been loaded, use that instead of loading it again
-/*
-	for (int iter = 0; iter < (int) my_scenelist.size(); iter++)
-	{
-		if (my_scenelist[iter].supername.compare(input) == 0) {
-			return my_scenelist[iter];
-		}
-	}*/
-  //Else load the scene in from the scene_path
+
 	Scene make = scene_from_assimp(input, mesh_index, textureOverride);
   //my_scenelist is the list of Scenes
 	my_scenelist.push_back(make);
@@ -170,15 +161,16 @@ Object::~Object()
   my_scenelist.clear();
 }
 
-Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z)
+Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, float sp_sh)
 {
   scene_path = s_p;
   mesh_index = m_i;
   texture_path = t_p;
-
   x_offset = x;
   y_offset = y;
   z_offset = z;
+  specular_shininess = sp_sh;
+
 
 	Scene currentScene = find_scene_from_path(scene_path, mesh_index, texture_path);
 
@@ -194,7 +186,6 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
 	printf("Successfully loaded %s with mesh number %i. It has %i non-unique vertices and %i non-unique indices\n", scene_path.c_str(), mesh_index, (int)Vertices.size(), (int)Indices.size());
 
   model = glm::mat4(1.0f);
-
 
   glGenBuffers(1, &VB);
   glBindBuffer(GL_ARRAY_BUFFER, VB);
@@ -218,6 +209,11 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
 	
 }
 
+void Object::Update(unsigned int dt)
+{
+  
+}
+
 glm::mat4 Object::GetModel()
 {
   return model;
@@ -228,7 +224,9 @@ void Object::SetModel(btScalar m[16])
   //glm::mat4 fixer;
   for (int iter = 0; iter < 16; iter++) {
     model[iter/4][iter%4] = m[iter];
+    //fixer[iter/4][iter%4] = 0.0;
   }
+
 }
 
 void Object::Render()
@@ -243,7 +241,7 @@ void Object::Render()
   glBindBuffer(GL_ARRAY_BUFFER, VB);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,norm));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,coord));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,coord));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
 

@@ -5,7 +5,7 @@
 void Physics::add_object(std::string obj, Graphics *m_graphics)
 {
 	Object* obj_to_add = m_graphics->object_search_by_name(obj);
-  btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
+	btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
 	assert(obj_to_add);
 	vector_of_objects.push_back(obj_to_add);
 	btVector3 triArray[3];
@@ -33,7 +33,7 @@ void Physics::add_object(std::string obj, Graphics *m_graphics)
 void Physics::add_sphere(std::string obj, Graphics *m_graphics, float m, float r)
 {
 	Object* obj_to_add = m_graphics->object_search_by_name(obj);
-  btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
+	btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
 	vector_of_objects.push_back(obj_to_add);
 	btCollisionShape *shape = new btSphereShape(btScalar(r));
 	vector_of_shapes.push_back(shape);
@@ -50,7 +50,7 @@ void Physics::add_sphere(std::string obj, Graphics *m_graphics, float m, float r
 void Physics::add_box(std::string obj, Graphics *m_graphics, float m, btVector3 size)
 {
 	Object* obj_to_add = m_graphics->object_search_by_name(obj);
-  btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
+	btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
 	vector_of_objects.push_back(obj_to_add);
 	btCollisionShape *shape = nullptr;
 	shape = new btBoxShape(size);
@@ -68,7 +68,7 @@ void Physics::add_box(std::string obj, Graphics *m_graphics, float m, btVector3 
 void Physics::add_cylinder(std::string obj, Graphics *m_graphics, float m, btVector3 idk)
 {
 	Object* obj_to_add = m_graphics->object_search_by_name(obj);
-  btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
+	btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
 	vector_of_objects.push_back(obj_to_add);
 	btCollisionShape *shape = nullptr;
 	shape = new btCylinderShape(idk);
@@ -92,8 +92,15 @@ Engine::Engine(string name, int width, int height)
   keystate_ctrl = false;
   keystate_r = false;
   killswitch = false;
-  use_vertex_lighting = false;
   PhysStruct.init();
+}
+
+Engine::Engine(string name)
+{
+  m_WINDOW_NAME = name;
+  m_WINDOW_HEIGHT = 0;
+  m_WINDOW_WIDTH = 0;
+  m_FULLSCREEN = true;
 }
 
 Engine::~Engine()
@@ -104,7 +111,7 @@ Engine::~Engine()
   m_graphics = NULL;
 }
 
-bool Engine::Initialize(std::string v1, std::string f1, std::string v2, std::string f2)
+bool Engine::Initialize(std::string v, std::string f)
 {
   // Start a window
   selection = nullptr;
@@ -117,7 +124,7 @@ bool Engine::Initialize(std::string v1, std::string f1, std::string v2, std::str
 
   // Start the graphics, now with path support for shaders
   m_graphics = new Graphics();
-  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, v1, f1, v2, f2))
+  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, v, f))
   {
     printf("The graphics failed to initialize.\n");
     return false;
@@ -126,12 +133,10 @@ bool Engine::Initialize(std::string v1, std::string f1, std::string v2, std::str
   // Set the time
   m_currentTimeMillis = GetCurrentTimeMillis();
   // No errors
-  
   PhysStruct.add_object("Tray", m_graphics);
   PhysStruct.add_sphere("Sphere", m_graphics, 1.0, 1.0);
-  PhysStruct.add_box("Box", m_graphics, 1.0, btVector3(1.0, 1.0, 1.0));
+  PhysStruct.add_box("Box", m_graphics, 1.0, btVector3(1.0,1.0,1.0));
   PhysStruct.add_cylinder("Cylinder", m_graphics, 0.0, btVector3(1.0,1.0,1.0));
-  
 
   return true;
 }
@@ -192,19 +197,24 @@ bool Engine::Keyboard()
     // handle key down events here
     switch(m_event.key.keysym.sym)
     {
-      //case  SDLK_1:  selection = m_graphics->m_cube; break;
-      //case  SDLK_2:  selection = m_graphics->m_moon; break;
-      case  SDLK_0:  selection = nullptr; break;
+      case SDLK_0:  selection = nullptr; break;
       case SDLK_LCTRL:
       case SDLK_RCTRL: keystate_ctrl = true; break;
       case SDLK_r: keystate_r = true; break;
-      case SDLK_l:
-      {
-        use_vertex_lighting = !use_vertex_lighting;
-        m_graphics->use_vertex_lighting = use_vertex_lighting;
-        std::cout << "AGH!" << std::endl;
-        break;
-      }
+
+      case SDLK_f: m_graphics->shade_use = !(m_graphics->shade_use); break;
+
+      case SDLK_t: m_graphics->ambient_lighting = max(0.0, m_graphics->ambient_lighting - 0.1); break;
+      case SDLK_y: m_graphics->ambient_lighting = min(1.0, m_graphics->ambient_lighting + 0.1); break;
+      case SDLK_g: m_graphics->diffuse_lighting = max(0.1, m_graphics->diffuse_lighting - 0.2); break;
+      case SDLK_h: m_graphics->diffuse_lighting = min(1.5, m_graphics->diffuse_lighting + 0.2); break;
+      case SDLK_b: m_graphics->specular_lighting = max(0.1, m_graphics->specular_lighting - 0.2); break;
+      case SDLK_n: m_graphics->specular_lighting = min(1.5, m_graphics->specular_lighting + 0.2); break;
+
+      case SDLK_i: m_graphics->spotlight_angle = max(0.1, m_graphics->spotlight_angle - 0.1); break;
+      case SDLK_o: m_graphics->spotlight_angle = min(1.5, m_graphics->spotlight_angle + 0.1); break;
+      case SDLK_l: m_graphics->object_search_by_name("Box")->specular_shininess = max(0.25, (m_graphics->object_search_by_name("Box")->specular_shininess) / 2.0); break;
+      case SDLK_k: m_graphics->object_search_by_name("Box")->specular_shininess = min(256.0, (m_graphics->object_search_by_name("Box")->specular_shininess) * 2.0); break;
 
     }
   }
@@ -217,19 +227,18 @@ bool Engine::Keyboard()
       case SDLK_r: keystate_r = false; break;
     }
   }
-  else if (m_event.type == SDL_MOUSEBUTTONDOWN)
+  else if (m_event.type == SDL_MOUSEBUTTONDOWN && selection != nullptr)
   {
     // handle mouse down events here
     if (m_event.button.button == SDL_BUTTON_LEFT)
     {
-
+      
     }
     else if (m_event.button.button == SDL_BUTTON_RIGHT)
     {
-
+      
     }
   }
-
   if(keystate_ctrl == true && keystate_r == true)
     {
       std::cout << "Reloading configuration file" << std::endl;

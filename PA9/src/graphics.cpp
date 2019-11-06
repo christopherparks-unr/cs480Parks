@@ -36,30 +36,36 @@ void read_ini()
 				make.scene_path = "../assets/scenes/cube.obj";
 				make.mesh_index = 0;
 				make.texture_path = "../assets/scenes/default.jpg";
-        make.x_offset = 0.0;
-        make.y_offset = 0.0;
-        make.z_offset = 0.0;
+				make.x_offset = 0.0;
+				make.y_offset = 0.0;
+				make.z_offset = 0.0;
+				make.specular_shininess = 2.0;
 
         //Defines the path of the file to import
 			} else if (s.find("scene_path=") == 0) {
 				make.scene_path = s.substr(11,s.length());
         //Defines the name of the mesh to use. The name of the mesh is defined by assimp... Specifically the aiMesh's mName variable
 			} else if (s.find("mesh_index=") == 0) {
-          s = s.substr(11,s.length());
+                                s = s.substr(11,s.length());
 				make.mesh_index = std::stoi(s);
         //Defines a texture path, which overrides the default texture assigned to the mesh
-      } else if (s.find("texture_path=") == 0) {
+                        } else if (s.find("texture_path=") == 0) {
 				make.texture_path = s.substr(13,s.length());
-			} else if(s.find("x=") == 0) {
-        s = s.substr(2,s.length());
-        make.x_offset = std::stof(s);
-      } else if(s.find("y=") == 0) {
-        s = s.substr(2,s.length());
-        make.y_offset = std::stof(s);
-      } else if(s.find("z=") == 0) {
-        s = s.substr(2,s.length());
-        make.z_offset = std::stof(s);
-      }
+        //Scale of the object. 1.0 is default
+			} else if (s.find("x=") == 0) {
+				s = s.substr(2,s.length());
+				make.x_offset = std::stof(s);
+			} else if (s.find("y=") == 0) {
+				s = s.substr(2,s.length());
+				make.y_offset = std::stof(s);
+			} else if (s.find("z=") == 0) {
+				s = s.substr(2,s.length());
+				make.z_offset = std::stof(s);
+			} else if (s.find("specular=") == 0) {
+				s = s.substr(9,s.length());
+				make.specular_shininess = std::stof(s);
+			}
+
 		}
 		fb.close();
 	}
@@ -80,7 +86,10 @@ Object* Graphics::object_search_by_name(std::string findme)
 
 Graphics::Graphics()
 {
-  use_vertex_lighting = false;
+    ambient_lighting = 0.1;
+    diffuse_lighting = 1.0;
+    specular_lighting = 1.0;
+    spotlight_angle = 0.5;
 }
 
 Graphics::~Graphics()
@@ -92,7 +101,7 @@ Graphics::~Graphics()
 
 }
 
-bool Graphics::Initialize(int width, int height, std::string v1, std::string f1, std::string v2, std::string f2)
+bool Graphics::Initialize(int width, int height, std::string v, std::string f)
 {
 	read_ini();
 
@@ -134,17 +143,17 @@ bool Graphics::Initialize(int width, int height, std::string v1, std::string f1,
   //Iterate through the list of object information, create the objects with their attributes, and push them into an object list
 	for (int iter = 0; iter < (int) genlist.size(); iter++)
 	{
-    Object temp(genlist[iter].scene_path,genlist[iter].mesh_index,
+    Object temp(genlist[iter].scene_path,
+		genlist[iter].mesh_index,
                 genlist[iter].texture_path,
-                genlist[iter].x_offset,
-                genlist[iter].y_offset,
-                genlist[iter].z_offset
-		);
+		genlist[iter].x_offset,
+		genlist[iter].y_offset,
+		genlist[iter].z_offset,
+		genlist[iter].specular_shininess);
 
 		objlist.push_back(temp);
 	}
-
-
+  
   // Set up the shaders
   m_shader = new Shader();
   if(!m_shader->Initialize())
@@ -153,82 +162,56 @@ bool Graphics::Initialize(int width, int height, std::string v1, std::string f1,
     return false;
   }
 
-  // Add the vertex shader, now with path support
-  if(!m_shader->AddShader(GL_VERTEX_SHADER, v1, true))
+  // Add the vertex shader
+  if(!m_shader->AddShader(GL_VERTEX_SHADER, "../assets/shaders/vertex_pa9_p.txt"))
   {
-    printf("Vertex Shader 1 failed to Initialize\n");
+    printf("Vertex Shader failed to Initialize\n");
     return false;
   }
 
-  // Add the fragment shader, now with path support
-  if(!m_shader->AddShader(GL_FRAGMENT_SHADER, f1, true))
+  // Add the fragment shader
+  if(!m_shader->AddShader(GL_FRAGMENT_SHADER, "../assets/shaders/fragment_pa9_p.txt"))
   {
-    printf("Fragment Shader 1 failed to Initialize\n");
-    return false;
-  }
-
-  // Add the vertex shader, now with path support
-  if(!m_shader->AddShader(GL_VERTEX_SHADER, v2, false))
-  {
-    printf("Vertex Shader 2 failed to Initialize\n");
-    return false;
-  }
-
-  // Add the fragment shader, now with path support
-  if(!m_shader->AddShader(GL_FRAGMENT_SHADER, f2, false))
-  {
-    printf("Fragment Shader 2 failed to Initialize\n");
+    printf("Fragment Shader failed to Initialize\n");
     return false;
   }
 
   // Connect the program
-  if(!m_shader->Finalize(true))
+  if(!m_shader->Finalize())
   {
-    printf("Program to Finalize 1\n");
+    printf("Program to Finalize\n");
     return false;
   }
 
-  if(!m_shader->Finalize(false))
+  // alt shader
+  m_alt_shader = new Shader();
+  if (!m_alt_shader->Initialize())
   {
-    printf("Program to Finalize 2\n");
+    printf("Shader Failed to Initialize\n");
     return false;
   }
 
-  // Locate the projection matrix in the shader
-  m_projectionMatrix = m_shader->GetUniformLocation("projectionMatrix", use_vertex_lighting);
-  if (m_projectionMatrix == INVALID_UNIFORM_LOCATION) 
+  // Add the vertex shader
+  if(!m_alt_shader->AddShader(GL_VERTEX_SHADER, "../assets/shaders/vertex_pa9_g.txt"))
   {
-    printf("m_projectionMatrix not found\n");
+    printf("Vertex Shader failed to Initialize\n");
     return false;
   }
 
-  // Locate the view matrix in the shader
-  m_viewMatrix = m_shader->GetUniformLocation("viewMatrix", use_vertex_lighting);
-  if (m_viewMatrix == INVALID_UNIFORM_LOCATION) 
+  // Add the fragment shader
+  if(!m_alt_shader->AddShader(GL_FRAGMENT_SHADER, "../assets/shaders/fragment_pa9_g.txt"))
   {
-    printf("m_viewMatrix not found\n");
+    printf("Fragment Shader failed to Initialize\n");
     return false;
   }
 
-  // Locate the model matrix in the shader
-  m_modelMatrix = m_shader->GetUniformLocation("modelMatrix", use_vertex_lighting);
-  if (m_modelMatrix == INVALID_UNIFORM_LOCATION) 
+  if(!m_alt_shader->Finalize())
   {
-    printf("m_modelMatrix not found\n");
+    printf("Program to Finalize\n");
     return false;
   }
 
-  m_lightposition_one = m_shader->GetUniformLocation("light_position", use_vertex_lighting);
-  if (m_modelMatrix == INVALID_UNIFORM_LOCATION) 
-  {
-    printf("m_lightposition_one not found\n");
-  }
-
-  m_materialshininess = m_shader->GetUniformLocation("material_shininess", use_vertex_lighting);
-  if (m_modelMatrix == INVALID_UNIFORM_LOCATION) 
-  {
-    printf("m_lightposition_one not found\n");
-  }
+  shade_use = true;
 
   //enable depth testing
   glEnable(GL_DEPTH_TEST);
@@ -239,35 +222,110 @@ bool Graphics::Initialize(int width, int height, std::string v1, std::string f1,
 
 void Graphics::Update(unsigned int dt)
 {
-  
+  // Update the objects
+	for (int iter = 0; iter < (int) objlist.size(); iter++)
+	{
+		objlist[iter].Update(dt);
+	}
 }
 
 void Graphics::Render()
 {
   //clear the screen
-  glClearColor(0.0, 0.2, 0.0, 1.0);
+  glClearColor(0.0, 0.0, 0.2, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  Shader* use;
+
   // Start the correct program
-  m_shader->Enable(use_vertex_lighting);
+  if (shade_use) {
+    m_shader->Enable();
+    use = m_shader;
+  } else {
+    m_alt_shader->Enable();
+    use = m_alt_shader;
+  }
+
+  // Locate the projection matrix in the shader
+  m_projectionMatrix = use->GetUniformLocation("projectionMatrix");
+  if (m_projectionMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_projectionMatrix not found\n");
+  }
+
+  // Locate the view matrix in the shader
+  m_viewMatrix = use->GetUniformLocation("viewMatrix");
+  if (m_viewMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_viewMatrix not found\n");
+  }
+
+  // Locate the model matrix in the shader
+  m_modelMatrix = use->GetUniformLocation("modelMatrix");
+  if (m_modelMatrix == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_modelMatrix not found\n");
+  }
+
+  m_light_position = use->GetUniformLocation("light_position");
+  if (m_light_position == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_light_position_one not found\n");
+  }
+
+  m_mat_shininess = use->GetUniformLocation("mat_shininess");
+  if (m_mat_shininess == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_mat_shininess not found\n");
+  }
+
+  m_spotlight_angle = use->GetUniformLocation("spotlight_angle");
+  if (m_spotlight_angle == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_spotlight_angle not found\n");
+  }
+
+  m_ambient_lighting = use->GetUniformLocation("ambient_lighting");
+  if (m_ambient_lighting == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_ambient_lighting not found\n");
+  }
+
+  m_diffuse_lighting = use->GetUniformLocation("diffuse_lighting");
+  if (m_diffuse_lighting == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_diffuse_lighting not found\n");
+  }
+
+  m_specular_lighting = use->GetUniformLocation("specular_lighting");
+  if (m_specular_lighting == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_specular_lighting not found\n");
+  }
 
   // Send in the projection and view to the shader
   glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection())); 
   glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView())); 
 
-  float lightboi[4];
-  lightboi[0] = 5.0;
-  lightboi[1] = -5.0;
-  lightboi[2] = 0.0;
-  lightboi[3] = 0.0;
-  glUniform4fv( m_lightposition_one, 1, lightboi );
+  float light_pos[3];
+  light_pos[0] = (object_search_by_name("Sphere")->GetModel())[3][0]+0.0;
+  light_pos[1] = (object_search_by_name("Sphere")->GetModel())[3][1]+15.0;
+  light_pos[2] = (object_search_by_name("Sphere")->GetModel())[3][2]+0.0;
 
-  float matshiny = 10.0;
-  glUniform1fv( m_materialshininess, 1, &matshiny );
+  glUniform3fv( m_light_position, 1, light_pos );
+  glUniform1fv( m_spotlight_angle, 1, &spotlight_angle );
+
+  glUniform1fv( m_ambient_lighting, 1, &ambient_lighting );
+  glUniform1fv( m_diffuse_lighting, 1, &diffuse_lighting );
+  glUniform1fv( m_specular_lighting, 1, &specular_lighting );
+
+
+
 
   // Render the objects
 	for (int iter = 0; iter < (int) objlist.size(); iter++)
 	{
+		glUniform1fv( m_mat_shininess, 1, &(objlist[iter].specular_shininess));
 		glUniformMatrix4fv(m_modelMatrix,1,GL_FALSE,glm::value_ptr(objlist[iter].GetModel()));
 		objlist[iter].Render();
 	}

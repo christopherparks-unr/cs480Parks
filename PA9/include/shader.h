@@ -11,18 +11,14 @@ class Shader
     Shader();
     ~Shader();
     bool Initialize();
-    void Enable(bool vertex_lighting);
-    bool AddShader(GLenum ShaderType, std::string path, bool vertex_lighting);
-    bool Finalize(bool vertex_lighting);
-    GLint GetUniformLocation(const char* pUniformName, bool vertex_lighting);
-
-    GLuint m_shaderProg_vertex;
-    GLuint m_shaderProg_fragment;
-    std::vector<GLuint> m_shaderObjList_vertex;
-    std::vector<GLuint> m_shaderObjList_fragment;
+    void Enable();
+    bool AddShader(GLenum ShaderType, std::string path);
+    bool Finalize();
+    GLint GetUniformLocation(const char* pUniformName);
 
   private:
-    
+    GLuint m_shaderProg;    
+    std::vector<GLuint> m_shaderObjList;
 };
 
 #endif  /* SHADER_H */

@@ -3,7 +3,8 @@
           uniform sampler2D textu;
           
           varying vec2 coord;
-          //in vec3 color;
+
+	  in vec3 location_v;
 
           in vec3 qL;
           in vec3 qH;
@@ -11,20 +12,31 @@
 
           out vec4 frag_color;
           
-          uniform float material_shininess;
+          uniform float ambient_lighting;
+	  uniform float diffuse_lighting;
+	  uniform float specular_lighting;
+          uniform float mat_shininess;
+
+          uniform vec3 light_position;
+          uniform float spotlight_angle;
 
           void main(void) 
           { 
-             //frag_color = vec4(color.rgb, 1.0); 
-             //frag_color = vec4(1.0,1.0,1.0, 1.0);
-
              float Kd = max( dot(qL,qN),0.0 );
-             vec4 dif = vec4( Kd, Kd, Kd, 0.0 );
-             float Ks = pow( max(dot(qN, qH),0.0), material_shininess );
+             float Ks = pow( max(dot(qN, qH),0.0), mat_shininess );
              if ( dot(qL,qN) < 0.0 ) { Ks = 0.0; }
-             vec4 spc = vec4( Ks, Ks, Ks, 0.0 );
 
-             vec4 shade = dif + spc;
+	     vec3 nqL = normalize(light_position.xyz - location_v);
+
+             if ( acos( nqL.y ) > spotlight_angle ) {
+		Kd = 0.0; Ks = 0.0;
+             }
+
+	     vec4 amb = vec4( ambient_lighting, ambient_lighting, ambient_lighting, 0.0);
+             vec4 dif = vec4( diffuse_lighting*Kd, diffuse_lighting*Kd, diffuse_lighting*Kd, 0.0 );
+             vec4 spc = vec4( specular_lighting*Ks, specular_lighting*Ks, specular_lighting*Ks, 0.0 );
+
+             vec4 shade = amb + dif + spc;
 
              frag_color = vec4( (texture2D(textu, coord.xy)*shade).xyz, 1.0 );
           } 

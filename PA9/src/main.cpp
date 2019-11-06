@@ -3,14 +3,14 @@
 #include "engine.h"
 
 
-int load(std::string v1, std::string f1, std::string v2, std::string f2)
+int load(std::string v, std::string f)
 {
   bool endProg = true;
   // Start an engine and run it then cleanup after
   while(endProg)
   {
     Engine *engine = new Engine("Chris Parks & Grant Thompson, PA9", 800, 600);
-    if(!engine->Initialize(v1, f1, v2, f2))
+    if(!engine->Initialize(v, f))
     {
       printf("The engine failed to start.\n");
       delete engine;
@@ -31,10 +31,33 @@ int load(std::string v1, std::string f1, std::string v2, std::string f2)
 int main(int argc, char **argv)
 {
   //Define default path strings for vertex and fragment shaders
-  std::string v1 = "../assets/shaders/vertex_pa9_p.txt";
-  std::string f1 = "../assets/shaders/fragment_pa9_p.txt";
-  std::string v2 = "../assets/shaders/vertex_pa9_p.txt";
-  std::string f2 = "../assets/shaders/fragment_pa9_p.txt";
+  std::string v = "../assets/shaders/vertex_pa9_p.txt";
+  std::string f = "../assets/shaders/fragment_pa9_p.txt";
+  //Parse through command line arguments and search for alternate paths to shaders
+  int cur_arg = 2;
+  if(argc > 1)
+  {
+    while(cur_arg <= argc)
+    {
+      if(cur_arg + 1 <= argc && strcmp(argv[cur_arg - 1], "-v") == 0)
+      {
+        v = argv[cur_arg];
+        cur_arg += 2;
+      }
+      else if(cur_arg + 1 <= argc && strcmp(argv[cur_arg - 1], "-f") == 0)
+      {
+        f = argv[cur_arg];
+        cur_arg += 2;
+      }
+      else
+      {
+        cur_arg++;
+      }
+      
+    }
+  }
+  std::cout << "VS: " << v << std::endl;
+  std::cout << "FS: " << f << std::endl;
 
-  return load(v1, f1, v2, f2);
+  return load(v, f);
 }

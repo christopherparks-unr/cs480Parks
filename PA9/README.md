@@ -5,12 +5,19 @@ Grant Thompson
 
 ## This project
 
-This project implements a dynamic sphere and cube that interact with each other, as well as a static cylinder and a triangle mesh constructed from the model of a board.
+This project implements a dynamic sphere and cube that interact with each other, as well as a static cylinder and a triangle mesh constructed from the model of a board. Implements the Phong and Gourand lighting models.
 
-## Adding objects to the project
-Within ```/assets/scenes/``` are a few sample object files. cube.obj is the orginal object that was hard-coded in the first project. dragon.obj is the sample file found on the class website, already included for your convenience. The same applies for buddha.obj.
+## Controls
 
-You can put objects anywhere you like so long as you reference the correct path -- you are not limited to the /assets/scenes/ folder.
+Phong / Gourand models can be toggled with the ```F``` key.
+Global ambient lighting can be increased / decreased with the ```Y and T``` keys, respectively.
+Global diffuse lighting can be increased / decreased with the ```H and G``` keys, respectively.
+Global specular lighting can be increased / decreased with the ```N and B``` keys, respectively.
+
+The spotlight's radius can be increased / decreased with the ```O and I``` keys, respectively.
+The cube's specific specular lighting can be further increased / decreased with the ```L and K``` keys, respectively.
+
+Other object's specularity can be modified within main.ini.
 
 ## Instructions for Use
 The makefile generates a file called ```PA9``` to run.
@@ -25,10 +32,6 @@ The parent argument refers to the name of the object (as described above).
 The scene_path argument refers to the model you wish to import.  **The path is relative to ```/PA9/```.**
 
 **Note that the last object defined will not be loaded; make sure that ```[EOF]``` is the final line in the file to ensure all objects are loaded.**
-
-The mesh_name argument refers to the specific mesh you want to use. You must use the name of the mesh as defined by Assimp (specifically, the ```aiMesh.mName``` variable. All objects included are defined in main.ini with their correct mesh names).
-
-Do not define scale to be 0.0. It will break, and it doesn't make sense to use that value anyways.
 
 # Dependencies, Building, and Running
 

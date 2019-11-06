@@ -4,7 +4,7 @@
           
           varying vec2 coord;
           //in vec3 color;
-          in vec4 shade;          
+          varying vec4 shade;          
 
           out vec4 frag_color;
           

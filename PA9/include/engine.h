@@ -64,7 +64,7 @@ class Engine
     Engine(string name, int width, int height);
     Engine(string name);
     ~Engine();
-    bool Initialize(std::string v1, std::string f1, std::string v2, std::string f2);
+    bool Initialize(std::string v, std::string f);
     bool Run();
     bool Keyboard();
     unsigned int getDT();
@@ -75,7 +75,6 @@ class Engine
 
     bool keystate_ctrl;
     bool keystate_r;
-    bool use_vertex_lighting;
 
     bool killswitch;
   

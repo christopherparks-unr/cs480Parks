@@ -27,16 +27,6 @@ struct Scene
 {
 	std::string supername;
 	std::vector<Mesh> meshes;
-/*
-	int search_mesh_by_index(int input) {
-		for (int iter = 0; iter < (int) meshes.size(); iter++)
-		{
-			if (meshes[iter].name.compare(input) == 0) {
-				return iter;
-			}
-		}
-		return -1;
-	}*/
 };
 
 
@@ -45,11 +35,15 @@ class Object
 {
   public:
     ~Object();
-Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z);
+Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, float sp_sh);
+    void Update(unsigned int dt);
     void Render();
 
     glm::mat4 GetModel();
     void SetModel(btScalar m[16]);
+
+    float rotation_angle;
+    float orbit_angle;
 
     std::string scene_path;
     int mesh_index;
@@ -57,6 +51,7 @@ Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z);
     float x_offset;
     float y_offset;
     float z_offset;
+    float specular_shininess;
 
     std::vector<Vertex> Vertices;
     std::vector<unsigned int> Indices;
