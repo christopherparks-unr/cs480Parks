@@ -1,4 +1,4 @@
-# PA9: Lighting [Pinball Part 2]
+# PA10: Pinball
 Group Project:
 Chris Parks
 Grant Thompson
@@ -9,27 +9,25 @@ This project implements a dynamic sphere and cube that interact with each other,
 
 ## Controls
 
-Phong / Gourand models can be toggled with the ```F``` key.
-Global ambient lighting can be increased / decreased with the ```Y and T``` keys, respectively.
-Global diffuse lighting can be increased / decreased with the ```H and G``` keys, respectively.
-Global specular lighting can be increased / decreased with the ```N and B``` keys, respectively.
-
-The spotlight's radius can be increased / decreased with the ```O and I``` keys, respectively.
-The cube's specific specular lighting can be further increased / decreased with the ```L and K``` keys, respectively.
+Press Q and E to trigger the flippers.
+Space activates the Plunger.
+F toggles per Vertex / per Fragment lighting.
+Z/X Turn up / down global ambient lighting.
+C/V Turn up / down global specular lighting.
 
 Other object's specularity can be modified within main.ini.
 
 ## Instructions for Use
-The makefile generates a file called ```PA9``` to run.
+The makefile generates a file called ```Pinball``` to run.
 
 ## Defining Objects to Render
-Objects are defined within ```/PA9/main.ini```. Look at the included file to see how it should be formatted. Some notes about the attributes:
+Objects are defined within ```/Pinball/main.ini```. Look at the included file to see how it should be formatted. Some notes about the attributes:
 
 The first line must be the name you give the object. Use ```[<name>]``` to define the beginning of a new object and mark the end of the old object definition.
 
 The parent argument refers to the name of the object (as described above).
 
-The scene_path argument refers to the model you wish to import.  **The path is relative to ```/PA9/```.**
+The scene_path argument refers to the model you wish to import.  **The path is relative to ```/Pinball/```.**
 
 **Note that the last object defined will not be loaded; make sure that ```[EOF]``` is the final line in the file to ensure all objects are loaded.**
 
@@ -66,12 +64,12 @@ mkdir build
 cd build
 cp ../makefile .
 make
-./PA9
+./Pinball
 ```
 
 Example run code:
 ```
-./PA9
+./Pinball
 ```
 
 ## Ubuntu.cse.unr.edu
