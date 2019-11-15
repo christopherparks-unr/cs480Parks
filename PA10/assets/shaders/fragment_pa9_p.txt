@@ -1,0 +1,53 @@
+#version 330
+
+          uniform sampler2D textu;
+          
+          varying vec2 coord;
+
+	  in vec3 location_v;
+
+          in vec3 qL;
+          in vec3 qH;
+          in vec3 qN;          
+
+          out vec4 frag_color;
+          
+          uniform float ambient_lighting;
+	  uniform float diffuse_lighting;
+	  uniform float specular_lighting;
+          uniform float mat_shininess;
+
+          uniform vec3 light_position;
+          uniform float spotlight_angle;
+
+          uniform mat4 modelMatrix;
+
+          void main(void) 
+          { 
+	     vec3 nqL = normalize(light_position.xyz - location_v);
+	     vec3 naqL = normalize( vec3(0.0,5.0,0.0)-location_v );
+	     vec3 E = normalize( -(modelMatrix * vec4(location_v,1.0)).xyz );
+	     vec3 naqH = normalize( naqL + E );
+
+             float Kd = max( dot(nqL,qN),0.0 );
+             float Kd1 = max( dot(naqL,qN),0.0 );
+             float Ks = pow( max(dot(qN, qH),0.0), mat_shininess );
+	     float Ks1 = pow( max(dot(qN, naqH),0.0), mat_shininess );
+             if ( dot(qL,qN) < 0.0 ) { Ks = 0.0; }
+
+             if ( acos( nqL.y ) > spotlight_angle ) {
+		Kd = 0.0; Ks = 0.0;
+             }
+
+	     vec4 amb = vec4( ambient_lighting, ambient_lighting, ambient_lighting, 0.0);
+             vec4 dif = vec4(    diffuse_lighting*Kd*0.5 + diffuse_lighting*Kd1*0.75,
+				 diffuse_lighting*Kd*0.5 + diffuse_lighting*Kd1*0.65,
+				 diffuse_lighting*Kd*0.75 + diffuse_lighting*Kd1*0.5, 0.0 );
+             vec4 spc = vec4(    specular_lighting*Ks*0.5 + specular_lighting*Ks1*0.5,
+				 specular_lighting*Ks*0.5 + specular_lighting*Ks1*0.5,
+				 specular_lighting*Ks*0.5 + specular_lighting*Ks1*0.5, 0.0 );
+
+             vec4 shade = amb + dif + spc;
+
+             frag_color = (texture2D(textu, coord.xy)*shade);
+          } 
