@@ -1,0 +1,16 @@
+#version 330
+
+          uniform sampler2D textu;
+          
+          varying vec2 coord;
+          //in vec3 color;
+          varying vec4 shade;          
+
+          out vec4 frag_color;
+          
+          void main(void) 
+          { 
+             //frag_color = vec4(color.rgb, 1.0); 
+             //frag_color = vec4(1.0,1.0,1.0, 1.0);
+             frag_color = vec4( (texture2D(textu, coord.xy)*shade).xyz, 1.0 );
+          } 
