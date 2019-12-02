@@ -18,8 +18,7 @@ void read_ini()
 			if (s.length() == 0) {continue;}
 
       //Determines the name of the object being loaded
-			if (s[0] == '[')
-      {
+			if (s[0] == '[') {
 				if (index_read != 0) {
 					genlist.push_back(make);
 				}
@@ -40,6 +39,15 @@ void read_ini()
 				make.y_offset = 0.0;
 				make.z_offset = 0.0;
 				make.specular_shininess = 2.0;
+				make.restitution = 0.3;
+
+				make.shape_type = "object";
+				make.lifetime = -1;
+				make.mass = 0.0;
+				make.radius = 1.0;
+				make.x_phys = 1.0;
+				make.y_phys = 1.0;
+				make.z_phys = 1.0;
 
         //Defines the path of the file to import
 			} else if (s.find("scene_path=") == 0) {
@@ -64,7 +72,30 @@ void read_ini()
 			} else if (s.find("specular=") == 0) {
 				s = s.substr(9,s.length());
 				make.specular_shininess = std::stof(s);
-			}
+			} else if (s.find("restitution=") == 0) {
+				s = s.substr(12,s.length());
+				make.restitution = std::stof(s);
+			} else if (s.find("mass=") == 0) {
+				s = s.substr(5,s.length());
+				make.mass = std::stof(s);
+			} else if (s.find("radius=") == 0) {
+				s = s.substr(7,s.length());
+				make.radius = std::stof(s);
+			} else if (s.find("vecx=") == 0) {
+				s = s.substr(5,s.length());
+				make.x_phys = std::stof(s);
+			} else if (s.find("vecy=") == 0) {
+				s = s.substr(5,s.length());
+				make.y_phys = std::stof(s);
+			} else if (s.find("vecz=") == 0) {
+				s = s.substr(5,s.length());
+				make.z_phys = std::stof(s);
+			} else if (s.find("lifetime=") == 0) {
+				s = s.substr(9,s.length());
+				make.lifetime = std::stoi(s);
+			} else if (s.find("shape_type=") == 0) {
+				make.shape_type = s.substr(11,s.length());
+			} 
 
 		}
 		fb.close();
@@ -86,7 +117,7 @@ Object* Graphics::object_search_by_name(std::string findme)
 
 Graphics::Graphics()
 {
-    ambient_lighting = 0.9;
+    ambient_lighting = 0.7;
     diffuse_lighting = 1.0;
     specular_lighting = 1.0;
     spotlight_angle = 0.5;
@@ -101,7 +132,7 @@ Graphics::~Graphics()
 
 }
 
-bool Graphics::Initialize(int width, int height, std::string v, std::string f)
+bool Graphics::Initialize(int width, int height, std::string v, std::string f, Physics* PhysStruct)
 {
 	read_ini();
 
@@ -149,9 +180,28 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f)
 		genlist[iter].x_offset,
 		genlist[iter].y_offset,
 		genlist[iter].z_offset,
-		genlist[iter].specular_shininess);
+		genlist[iter].specular_shininess,
+		genlist[iter].restitution,
+		genlist[iter].lifetime);
 
 		objlist.push_back(temp);
+	}
+
+	for (int iter = 0; iter < (int) genlist.size(); iter++)
+	{
+		std::cout << genlist[iter].name << std::endl;
+
+		if (genlist[iter].shape_type.compare("box") == 0) {
+			PhysStruct->add_box(object_search_by_name(genlist[iter].name), genlist[iter].mass,
+				btVector3(genlist[iter].x_phys,genlist[iter].y_phys,genlist[iter].z_phys));
+		} else if (genlist[iter].shape_type.compare("sphere") == 0) {
+			PhysStruct->add_sphere(object_search_by_name(genlist[iter].name), genlist[iter].mass, genlist[iter].radius);
+		} else if (genlist[iter].shape_type.compare("cylinder") == 0) {
+			PhysStruct->add_cylinder(object_search_by_name(genlist[iter].name), genlist[iter].mass,
+				btVector3(genlist[iter].x_phys,genlist[iter].y_phys,genlist[iter].z_phys));
+		} else {
+			PhysStruct->add_object(object_search_by_name(genlist[iter].name));
+		}
 	}
   
   // Set up the shaders
@@ -229,7 +279,7 @@ void Graphics::Update(unsigned int dt)
 	}
 }
 
-void Graphics::Render()
+void Graphics::Render(Physics* PhysStruct)
 {
   //clear the screen
   glClearColor(0.0, 0.0, 0.2, 1.0);
@@ -308,9 +358,9 @@ void Graphics::Render()
   glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView())); 
 
   float light_pos[3];
-  light_pos[0] = 0.0;//(object_search_by_name("Sphere")->GetModel())[3][0]+0.0;
-  light_pos[1] = 15.0;//(object_search_by_name("Sphere")->GetModel())[3][1]+15.0;
-  light_pos[2] = 0.0;//(object_search_by_name("Sphere")->GetModel())[3][2]+0.0;
+  light_pos[0] = 0.0;
+  light_pos[1] = 15.0;
+  light_pos[2] = 0.0;
 
   glUniform3fv( m_light_position, 1, light_pos );
   glUniform1fv( m_spotlight_angle, 1, &spotlight_angle );
@@ -319,15 +369,20 @@ void Graphics::Render()
   glUniform1fv( m_diffuse_lighting, 1, &diffuse_lighting );
   glUniform1fv( m_specular_lighting, 1, &specular_lighting );
 
-
-
-
   // Render the objects
 	for (int iter = 0; iter < (int) objlist.size(); iter++)
 	{
+		if (objlist[iter].texture_path.compare("../assets/scenes/invis.png") == 0) {continue;}
+
 		glUniform1fv( m_mat_shininess, 1, &(objlist[iter].specular_shininess));
 		glUniformMatrix4fv(m_modelMatrix,1,GL_FALSE,glm::value_ptr(objlist[iter].GetModel()));
 		objlist[iter].Render();
+	}
+	if(PhysStruct != nullptr)
+	{
+		glUniform1fv( m_mat_shininess, 1, &(PhysStruct->DynObject->specular_shininess));
+		glUniformMatrix4fv(m_modelMatrix,1,GL_FALSE,glm::value_ptr(PhysStruct->DynObject->GetModel()));
+		PhysStruct->DynObject->Render();
 	}
 
   // Get any errors from OpenGL

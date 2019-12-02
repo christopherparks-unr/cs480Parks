@@ -166,7 +166,7 @@ Object::~Object()
   my_scenelist.clear();
 }
 
-Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, float sp_sh)
+Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, float sp_sh, float rest, int lt)
 {
   scene_path = s_p;
   mesh_index = m_i;
@@ -175,6 +175,8 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
   y_offset = y;
   z_offset = z;
   specular_shininess = sp_sh;
+  restitution = rest;
+  lifetime = lt;
 
 
 	Scene currentScene = find_scene_from_path(scene_path, mesh_index, texture_path);
@@ -182,13 +184,13 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
 	//int which = currentScene.search_mesh_by_index(mesh_index);
 
 	if (mesh_index < 0 || mesh_index >= (int)currentScene.meshes.size()) {
-		printf("Invalid mesh file selected!\n");
+		//printf("Invalid mesh file selected!\n");
 	}
 
 	Vertices = currentScene.meshes[mesh_index].vertex_data;
 	Indices = currentScene.meshes[mesh_index].indice_data;
 
-	printf("Successfully loaded %s with mesh number %i. It has %i non-unique vertices and %i non-unique indices\n", scene_path.c_str(), mesh_index, (int)Vertices.size(), (int)Indices.size());
+	//printf("Successfully loaded %s with mesh number %i. It has %i non-unique vertices and %i non-unique indices\n", scene_path.c_str(), mesh_index, (int)Vertices.size(), (int)Indices.size());
 
   model = glm::mat4(1.0f);
 
@@ -216,7 +218,15 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
 
 void Object::Update(unsigned int dt)
 {
-  
+  if(lifetime > 0)
+  {
+	lifetime--;
+	if(lifetime == 0)
+	{
+		//Destroy
+		
+	}
+  }
 }
 
 glm::mat4 Object::GetModel()
@@ -227,11 +237,17 @@ glm::mat4 Object::GetModel()
 void Object::SetModel(btScalar m[16])
 {
   //glm::mat4 fixer;
-  for (int iter = 0; iter < 16; iter++) {
-    model[iter/4][iter%4] = m[iter];
+  for (int f = 0; f < 16; f++) {
+    model[f/4][f%4] = m[f];
     //fixer[iter/4][iter%4] = 0.0;
   }
 
+
+}
+
+void Object::SetModel(glm::mat4 with)
+{
+	model = with;
 }
 
 void Object::Render()

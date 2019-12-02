@@ -35,12 +35,13 @@ class Object
 {
   public:
     ~Object();
-Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, float sp_sh);
+Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, float sp_sh, float rest, int lt);
     void Update(unsigned int dt);
     void Render();
 
     glm::mat4 GetModel();
     void SetModel(btScalar m[16]);
+    void SetModel(glm::mat4 with);
 
     float rotation_angle;
     float orbit_angle;
@@ -52,14 +53,16 @@ Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, flo
     float y_offset;
     float z_offset;
     float specular_shininess;
+    float restitution;
+    int lifetime;
 
     std::vector<Vertex> Vertices;
     std::vector<unsigned int> Indices;
 
     bool has_texture;
+    glm::mat4 model;
 
   private:
-    glm::mat4 model;
     GLuint VB;
     GLuint IB;
     GLuint TX;
