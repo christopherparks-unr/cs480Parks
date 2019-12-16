@@ -35,6 +35,7 @@ class Object
 {
   public:
     ~Object();
+    Object();
 Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, float sp_sh, float rest, int lt);
     void Update(unsigned int dt);
     void Render();
@@ -55,6 +56,8 @@ Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, flo
     float specular_shininess;
     float restitution;
     int lifetime;
+
+    btRigidBody* rigidBody;
 
     std::vector<Vertex> Vertices;
     std::vector<unsigned int> Indices;

@@ -19,11 +19,9 @@ class Engine
     bool Keyboard();
     unsigned int getDT();
     long long GetCurrentTimeMillis();
+    int bulletCycle;
 
     Object* selection;
-    std::vector<Object*> dynamicObjects;
-    int dynMaxSize;
-    int dynCurObjNum;
     Physics PhysStruct;
 
     bool keystate_ctrl;

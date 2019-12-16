@@ -34,7 +34,7 @@ void read_ini()
 				index_read += 1;
 				make.scene_path = "../assets/scenes/cube.obj";
 				make.mesh_index = 0;
-				make.texture_path = "../assets/scenes/default.jpg";
+				make.texture_path = "";
 				make.x_offset = 0.0;
 				make.y_offset = 0.0;
 				make.z_offset = 0.0;
@@ -117,7 +117,7 @@ Object* Graphics::object_search_by_name(std::string findme)
 
 Graphics::Graphics()
 {
-    ambient_lighting = 0.7;
+    ambient_lighting = 0.6;
     diffuse_lighting = 1.0;
     specular_lighting = 1.0;
     spotlight_angle = 0.5;
@@ -135,6 +135,8 @@ Graphics::~Graphics()
 bool Graphics::Initialize(int width, int height, std::string v, std::string f, Physics* PhysStruct)
 {
 	read_ini();
+
+
 
   // Used for the linux OS
   #if !defined(__APPLE__) && !defined(MACOSX)
@@ -189,18 +191,18 @@ bool Graphics::Initialize(int width, int height, std::string v, std::string f, P
 
 	for (int iter = 0; iter < (int) genlist.size(); iter++)
 	{
-		std::cout << genlist[iter].name << std::endl;
+		//std::cout << genlist[iter].name << std::endl;
 
 		if (genlist[iter].shape_type.compare("box") == 0) {
-			PhysStruct->add_box(object_search_by_name(genlist[iter].name), genlist[iter].mass,
+			objlist[iter].rigidBody = PhysStruct->add_box(object_search_by_name(genlist[iter].name), genlist[iter].mass,
 				btVector3(genlist[iter].x_phys,genlist[iter].y_phys,genlist[iter].z_phys));
 		} else if (genlist[iter].shape_type.compare("sphere") == 0) {
-			PhysStruct->add_sphere(object_search_by_name(genlist[iter].name), genlist[iter].mass, genlist[iter].radius);
+			objlist[iter].rigidBody = PhysStruct->add_sphere(object_search_by_name(genlist[iter].name), genlist[iter].mass, genlist[iter].radius);
 		} else if (genlist[iter].shape_type.compare("cylinder") == 0) {
-			PhysStruct->add_cylinder(object_search_by_name(genlist[iter].name), genlist[iter].mass,
+			objlist[iter].rigidBody = PhysStruct->add_cylinder(object_search_by_name(genlist[iter].name), genlist[iter].mass,
 				btVector3(genlist[iter].x_phys,genlist[iter].y_phys,genlist[iter].z_phys));
 		} else {
-			PhysStruct->add_object(object_search_by_name(genlist[iter].name));
+			objlist[iter].rigidBody = PhysStruct->add_object(object_search_by_name(genlist[iter].name));
 		}
 	}
   
@@ -279,10 +281,10 @@ void Graphics::Update(unsigned int dt)
 	}
 }
 
-void Graphics::Render(Physics* PhysStruct)
+void Graphics::Render()
 {
   //clear the screen
-  glClearColor(0.0, 0.0, 0.2, 1.0);
+  glClearColor(0.02, 0.06, 0.12, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   Shader* use;
@@ -323,6 +325,12 @@ void Graphics::Render(Physics* PhysStruct)
     printf("m_light_position_one not found\n");
   }
 
+  m_light_color = use->GetUniformLocation("light_color");
+  if (m_light_color == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_light_color not found\n");
+  }
+
   m_mat_shininess = use->GetUniformLocation("mat_shininess");
   if (m_mat_shininess == INVALID_UNIFORM_LOCATION) 
   {
@@ -353,14 +361,55 @@ void Graphics::Render(Physics* PhysStruct)
     printf("m_specular_lighting not found\n");
   }
 
+  m_camera_position = use->GetUniformLocation("camera_positoin");
+  if (m_camera_position == INVALID_UNIFORM_LOCATION) 
+  {
+    printf("m_camera_position not found\n");
+  }
+
   // Send in the projection and view to the shader
   glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection())); 
   glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView())); 
 
-  float light_pos[3];
-  light_pos[0] = 0.0;
-  light_pos[1] = 15.0;
-  light_pos[2] = 0.0;
+  float light_pos[12], light_color[16];
+  for (int y = 0; y < 12; y++) {
+    light_pos[y] = 0.0;
+  }
+  for (int y = 0; y < 16; y++) {
+    light_color[y] = 1.0;
+  }
+  //
+  light_pos[0] = -160.0;
+  light_pos[1] = 85.0;
+  light_pos[2] = -100.0;
+
+  light_pos[3] = 160.0;
+  light_pos[4] = 85.0;
+  light_pos[5] = 100.0;
+
+  light_pos[6] = -150.0;
+  light_pos[7] = 30.0;
+  light_pos[8] = -20.0;
+
+  light_pos[9] = 0.0;
+  light_pos[10] = 50.0;
+  light_pos[11] = 30.0;
+
+  //0-3 [Other Upper]
+  light_color[0] = 0.5;
+  //4-7 [Upper]
+  light_color[4] = 0.2;
+  light_color[5] = 0.6;
+  light_color[6] = 0.8;
+  //8-11 [Pachinko]
+  light_color[9] = 0.3;
+  light_color[10] = 0.5;
+  //12-15 [Center]
+  light_color[13] = 0.9;
+  light_color[14] = 0.3;
+
+  glUniform3fv( m_light_position, 4, light_pos );
+  glUniform4fv( m_light_color, 4, light_color );
 
   glUniform3fv( m_light_position, 1, light_pos );
   glUniform1fv( m_spotlight_angle, 1, &spotlight_angle );
@@ -368,6 +417,13 @@ void Graphics::Render(Physics* PhysStruct)
   glUniform1fv( m_ambient_lighting, 1, &ambient_lighting );
   glUniform1fv( m_diffuse_lighting, 1, &diffuse_lighting );
   glUniform1fv( m_specular_lighting, 1, &specular_lighting );
+
+  float camera_position[3];
+  camera_position[0] = m_camera->eye_store[0];
+  camera_position[1] = m_camera->eye_store[1];
+  camera_position[2] = m_camera->eye_store[2];
+
+  glUniform3fv( m_camera_position, 1, camera_position );
 
   // Render the objects
 	for (int iter = 0; iter < (int) objlist.size(); iter++)
@@ -378,12 +434,9 @@ void Graphics::Render(Physics* PhysStruct)
 		glUniformMatrix4fv(m_modelMatrix,1,GL_FALSE,glm::value_ptr(objlist[iter].GetModel()));
 		objlist[iter].Render();
 	}
-	if(PhysStruct != nullptr)
-	{
-		glUniform1fv( m_mat_shininess, 1, &(PhysStruct->DynObject->specular_shininess));
-		glUniformMatrix4fv(m_modelMatrix,1,GL_FALSE,glm::value_ptr(PhysStruct->DynObject->GetModel()));
-		PhysStruct->DynObject->Render();
-	}
+//Menu camera
+
+
 
   // Get any errors from OpenGL
   auto error = glGetError();

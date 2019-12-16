@@ -29,6 +29,8 @@ bool Camera::Initialize(int w, int h)
 
 bool Camera::Reposition(glm::vec3 eye, glm::vec3 focus, int w, int h)
 {
+  eye_store = eye;
+
 
   view = glm::lookAt( eye, //Eye Position
                       focus, //Focus point
@@ -42,6 +44,8 @@ bool Camera::Reposition(glm::vec3 eye, glm::vec3 focus, int w, int h)
 
 bool Camera::Reposition(glm::vec3 where, float theta, float phi, int w, int h)
 {
+  eye_store = where;
+
 
   glm::vec3 calc(sin(theta)*cos(phi),cos(theta),sin(theta)*sin(phi));
 

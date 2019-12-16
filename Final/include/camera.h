@@ -14,6 +14,8 @@ bool Reposition(glm::vec3 where, float theta, float phi, int w, int h);
     glm::mat4 GetProjection();
     glm::mat4 GetView();
   
+    glm::vec3 eye_store;
+  
   private:
     glm::mat4 projection;
     glm::mat4 view;

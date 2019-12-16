@@ -2,14 +2,13 @@
 #include <cstring>
 #include "engine.h"
 
-
 int load(std::string v, std::string f)
 {
   bool endProg = true;
   // Start an engine and run it then cleanup after
   while(endProg)
   {
-    Engine *engine = new Engine("Chris Parks & Grant Thompson, PA9", 1280, 720);
+    Engine* engine = new Engine("Chris Parks & Grant Thompson, Final", 1280, 720);
     if(!engine->Initialize(v, f))
     {
       printf("The engine failed to start.\n");

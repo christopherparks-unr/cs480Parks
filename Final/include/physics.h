@@ -6,6 +6,7 @@
 #include "object.h"
 #include <bullet/btBulletDynamicsCommon.h>
 
+
 struct Physics
 {
 	btBroadphaseInterface *bp;
@@ -16,11 +17,6 @@ struct Physics
 
 	std::vector<btCollisionShape*> vector_of_shapes;
 	std::vector<Object*> vector_of_objects;
-	//Object* DynObjects[16];
-	//btCollisionShape* DynShapes[16];
-	Object* DynObject;
-	btCollisionShape* DynShape;
-	int dynObjectNum;
 
 	void init()
 	{
@@ -32,16 +28,12 @@ struct Physics
 		dw->setGravity(btVector3(0.0,-2.00,0.0));
 		vector_of_shapes.clear();
 		vector_of_objects.clear();
-		dynObjectNum = 0;
-		for(int a = 0; a < 16; a++)
-		{
-			//DynObjects[a] = nullptr;
-			//DynShapes[a] = nullptr;
-		}
+
+		std::cout << "Successfully initialized DynObjects" << std::endl;
 	}
 
 
-	void add_object(Object* obj_to_add) {
+	btRigidBody* add_object(Object* obj_to_add) {
 		btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
 		assert(obj_to_add);
 		vector_of_objects.push_back(obj_to_add);
@@ -67,9 +59,10 @@ struct Physics
 		rigidBody->setFriction(0.2);
 		rigidBody->setRestitution(obj_to_add->restitution);
 		dw->addRigidBody(rigidBody);
+		return rigidBody;
 	}
 
-	void add_sphere(Object* obj_to_add, float m, float r) {
+	btRigidBody* add_sphere(Object* obj_to_add, float m, float r) {
 		btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
 		vector_of_objects.push_back(obj_to_add);
 		btCollisionShape *shape = new btSphereShape(btScalar(r));
@@ -85,9 +78,10 @@ struct Physics
 		rigidBody->setFriction(0.0);
 		rigidBody->setRestitution(obj_to_add->restitution);
 		dw->addRigidBody(rigidBody);
+		return rigidBody;
 	}
 
-	void add_box(Object* obj_to_add, float m, btVector3 size) {
+	btRigidBody* add_box(Object* obj_to_add, float m, btVector3 size) {
 		btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
 		vector_of_objects.push_back(obj_to_add);
 		btCollisionShape *shape = nullptr;
@@ -104,9 +98,10 @@ struct Physics
 		rigidBody->setFriction(0.5);
 		rigidBody->setRestitution(obj_to_add->restitution);
 		dw->addRigidBody(rigidBody);
+		return rigidBody;
 	}
 
-	void add_cylinder(Object* obj_to_add, float m, btVector3 idk) {
+	btRigidBody* add_cylinder(Object* obj_to_add, float m, btVector3 idk) {
 		btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
 		vector_of_objects.push_back(obj_to_add);
 		btCollisionShape *shape = nullptr;
@@ -123,24 +118,7 @@ struct Physics
 		rigidBody->setFriction(0.5);
 		rigidBody->setRestitution(obj_to_add->restitution);
 		dw->addRigidBody(rigidBody);
-	}
-void add_dynamic(Object* obj_to_add, float m) {
-		btVector3 offset = btVector3(obj_to_add->x_offset, obj_to_add->y_offset, obj_to_add->z_offset);
-		btCollisionShape *shape = new btSphereShape(btScalar(1.0));
-		DynObject = obj_to_add;
-		DynShape = shape;
-		dynObjectNum = 1;
-
-		btDefaultMotionState *shapeMotionState = NULL;
-		shapeMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), offset));
-		btScalar mass(m);
-		btVector3 inertia(0,0,0);
-		shape->calculateLocalInertia(mass,inertia);
-		btRigidBody::btRigidBodyConstructionInfo shapeRigidBodyCI(mass, shapeMotionState, shape, inertia);
-		btRigidBody *rigidBody = new btRigidBody(shapeRigidBodyCI);
-		rigidBody->setFriction(0.0);
-		rigidBody->setRestitution(obj_to_add->restitution);
-		dw->addRigidBody(rigidBody);
+		return rigidBody;
 	}
 
 	void destruct()

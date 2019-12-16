@@ -41,7 +41,7 @@ class Graphics
     ~Graphics();
     bool Initialize(int width, int height, std::string v, std::string f, Physics* ps);
     void Update(unsigned int dt);
-    void Render(Physics* PhysStruct = nullptr);
+    void Render();
 
 	std::vector<Object> objlist;
 	Object* object_search_by_name(std::string findme);
@@ -64,7 +64,10 @@ class Graphics
     GLint m_viewMatrix;
     GLint m_modelMatrix;
 
+    GLint m_camera_position;
+
     GLint m_light_position;
+    GLint m_light_color;
     GLint m_mat_shininess;
 
     GLint m_spotlight_angle;

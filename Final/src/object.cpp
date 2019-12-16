@@ -1,4 +1,5 @@
 #include "object.h"
+#include "physics.h"
 #include <cmath>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -15,37 +16,34 @@ std::string load_MTL(std::string filename, int meshIndex)
   true_filename += "mtl";
   
 	std::string asset_file = filename;
-	for (int iter = (int) filename.length()-1; iter >= 0; iter--) {
-		if (filename[iter] == '/') {
-			break;
-		}
+	for (int iter = (int) filename.length()-1; iter >= 0; iter--)
+        {
+		if (filename[iter] == '/') {break;}
 		asset_file.pop_back();
 	}
 
   std::filebuf fb;
-	std::string empty;
-	empty.clear();
-  if (!fb.open(true_filename,std::ios_base::in)) {
+  std::string empty;
+  empty.clear();
+  if (!fb.open(true_filename,std::ios_base::in))
+  {
+	std::cout << "Unable to find file: " << true_filename << std::endl;
     return "../assets/scenes/default.jpg";
   }
   
   std::string line;
   std::string line_extract;
 
-	bool within = false;
-
   std::istream reader(&fb);
   int mesh_num = -1;
-  while (reader) {
+  while (reader)
+  {
 
     line.clear();
     char get;
-    while (reader.get(get)) {
-      if (get == '\n') {
-				break;
-      } else {
-				line.push_back(get);
-      }
+    while (reader.get(get))
+    {
+      if (get == '\n') {break;} else {line.push_back(get);}
     }
 
     if (line[0] == '\t') {line = line.substr(1,std::string::npos);}
@@ -57,19 +55,18 @@ std::string load_MTL(std::string filename, int meshIndex)
                   if(meshIndex == mesh_num)
                   {
 			line_extract = asset_file+line.substr(7,std::string::npos);
-			std::cout << line_extract << std::endl;
+			//std::cout << line_extract << std::endl;
   			fb.close();
 			return line_extract;
-                    within = true;
                   }
 
 		}
 
-    if (within && line.find("map_Kd ") == 0) {
+    /*if (within && line.find("map_Kd ") == 0) {
 			line_extract = asset_file+line.substr(7,std::string::npos);
   		fb.close();
 			return line_extract;
-    }
+    }*/
   }
 
   fb.close();
@@ -95,16 +92,20 @@ Scene scene_from_assimp(std::string filename, int meshIndex, std::string texture
 	{
 		wantedMesh.name = readScene->mMeshes[iter]->mName.C_Str();
 		
-                if(textureOverride.length() == 0 || iter == meshIndex)
+                if(iter == meshIndex)
                 {
-									std::string texturepath = load_MTL(filename,iter);
-
-									if (texturepath.length() != 0) {
-										wantedMesh.image_data = stbi_load(texturepath.c_str(),&(wantedMesh.image_x),
-												&(wantedMesh.image_y),&(wantedMesh.image_c),4);
-									} else {
-										wantedMesh.image_data = NULL;
-									}
+			std::string texturepath = load_MTL(filename,iter);
+			if(textureOverride.length() != 0)
+			{
+				texturepath = textureOverride;
+			}
+			std::cout << texturepath << std::endl;
+			if (texturepath.length() != 0) {
+				wantedMesh.image_data = stbi_load(texturepath.c_str(),&(wantedMesh.image_x),
+						&(wantedMesh.image_y),&(wantedMesh.image_c),4);
+			} else {
+				wantedMesh.image_data = NULL;
+			}
                 }
                 else
                 {
@@ -165,7 +166,10 @@ Object::~Object()
   Indices.clear();
   my_scenelist.clear();
 }
+Object::Object()
+{
 
+}
 Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, float z, float sp_sh, float rest, int lt)
 {
   scene_path = s_p;
@@ -179,8 +183,8 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
   lifetime = lt;
 
 
-	Scene currentScene = find_scene_from_path(scene_path, mesh_index, texture_path);
 
+	Scene currentScene = find_scene_from_path(scene_path, mesh_index, texture_path);
 	//int which = currentScene.search_mesh_by_index(mesh_index);
 
 	if (mesh_index < 0 || mesh_index >= (int)currentScene.meshes.size()) {
@@ -189,11 +193,9 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
 
 	Vertices = currentScene.meshes[mesh_index].vertex_data;
 	Indices = currentScene.meshes[mesh_index].indice_data;
-
 	//printf("Successfully loaded %s with mesh number %i. It has %i non-unique vertices and %i non-unique indices\n", scene_path.c_str(), mesh_index, (int)Vertices.size(), (int)Indices.size());
 
   model = glm::mat4(1.0f);
-
   glGenBuffers(1, &VB);
   glBindBuffer(GL_ARRAY_BUFFER, VB);
   glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
@@ -201,7 +203,6 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
   glGenBuffers(1, &IB);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
-
 	has_texture = false;
 
 	if (currentScene.meshes[mesh_index].image_data != NULL) {	
@@ -213,20 +214,11 @@ Object::Object(std::string s_p, int m_i, std::string t_p, float x, float y, floa
 		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 	}
-	
 }
 
 void Object::Update(unsigned int dt)
 {
-  if(lifetime > 0)
-  {
-	lifetime--;
-	if(lifetime == 0)
-	{
-		//Destroy
-		
-	}
-  }
+
 }
 
 glm::mat4 Object::GetModel()

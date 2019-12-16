@@ -6,31 +6,22 @@
           layout (location = 2) in vec2 v_coord;
           
           varying vec2 coord; 
-	  out vec3 location_v;
 
-          out vec3 qL;
-          out vec3 qH;
           out vec3 qN;
+	  out vec3 qV;
 
           uniform mat4 projectionMatrix; 
           uniform mat4 viewMatrix;
           uniform mat4 modelMatrix; 
           
-          uniform vec3 light_position;
-          uniform float material_shininess;
-
           void main(void) 
           { 
             vec4 v = vec4(v_position, 1.0); 
             gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v; 
             coord = v_coord; 
 
-            location_v = (modelMatrix*v).xyz;
-
-            vec3 L = normalize( (light_position).xyz - ((modelMatrix) * v).xyz );
-            qL = L;
-            vec3 E = normalize( -(modelMatrix * v).xyz );
-            qH = normalize( L + E );
-            qN = normalize( ((modelMatrix) * vec4(v_norm,0.0)).xyz );
-            
+	    qV = v_position;
+	    qN = v_norm;
+	    //qV = (modelMatrix*v).xyz;
+            //qN = normalize( ((modelMatrix) * vec4(v_norm,1.0)).xyz );
           } 
